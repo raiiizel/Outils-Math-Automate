@@ -37,6 +37,9 @@ class Automate:
         self.list_alphabets = list_alphabets
         self.list_etats = list_etats
         self.list_transitions = list_transitions
+        self.etats_initiaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Initial]
+        self.etats_terminaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Intermediaire]
+
 
     def determiniser(self):
         ...
