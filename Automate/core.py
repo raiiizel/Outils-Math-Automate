@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from itertools import combinations
+from collections.abc import Iterable
 """"
 1.
 Créer une modélisation orientée objet d’un automate et l’enrichir par les méthodes nécessaires :
@@ -22,8 +22,8 @@ class TypeEtat(Enum):
 
 
 class Etat:
-    def __init__(self, label_etat : str | int, type_etat : TypeEtat = TypeEtat.Intermediaire):
-        self.label_etat = label_etat
+    def __init__(self, label_etat : list[str | int], type_etat : TypeEtat = TypeEtat.Intermediaire):
+        self.label_etat = frozenset(label_etat)
         self.type_etat = type_etat
 
 
@@ -40,6 +40,7 @@ class Transition:
 
 
 class Automate:
+    
     def __init__(self, list_alphabets : list[Alphabet], list_etats : list[Etat], list_transitions : list[Transition]):
         """"
         madrtch list initiaux w terminaux, 7itach kayna type d'etat fl'etat, n9do n'segregiw bih
@@ -49,16 +50,41 @@ class Automate:
         self.list_transitions = list_transitions
         self.etats_initiaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Initial]
         self.etats_terminaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Terminal]
-
+    
+    def __process_data(self,list_modifier):
+        initial_closure=[]
+        
+        for ele in list_modifier:
+            element=ele
+            if not isinstance(ele.label_etat,tuple):
+                element=(ele,)
+            for num in element:
+                initial_closure.append(*tuple(num.label_etat))   
+        return  initial_closure 
+    
+    def return_alpha(self):
+        return  [alpha.val_alphabet for alpha in self.list_alphabets]
+    
+    def return_etat(self)-> list[tuple[set[str | int], str, set[str | int]]]:
+        return [set(etat.label_etat)  for etat in self.list_etats]
+    
+    def return_transition(self)-> list[tuple[set[str | int], str, set[str | int]]]:
+        return [(set(trans.etat_source.label_etat), trans.alphabet.val_alphabet, set(trans.etat_destination.label_etat)) for trans in self.list_transitions]
+    
+    
     def determiniser(self):
         new_states = {}
         unprocessed = []
         new_transitions = []
 
-        initial_closure = frozenset([ele.label_etat for ele in self.etats_initiaux])
+        initial_closure=self.__process_data(self.etats_initiaux)    
+        initial_closure = frozenset(initial_closure)
+        
         new_initial_state = Etat(label_etat=initial_closure, type_etat=TypeEtat.Initial)
         new_states[initial_closure] = new_initial_state
         unprocessed.append(initial_closure)
+
+
         while unprocessed:
             current_set = unprocessed.pop(0)
             current_new_state = new_states[current_set]
@@ -79,12 +105,14 @@ class Automate:
 
         new_list_states = list(new_states.values())
         return Automate(self.list_alphabets, new_list_states, new_transitions)
+    
+    
     def __get_target_states(self, from_state, alpha):
-        return [
-            trans.etat_destination.label_etat
-            for trans in self.list_transitions
-            if trans.etat_source.label_etat == from_state and trans.alphabet == alpha
-        ]
+        returned_ele=[]
+        for trans in self.list_transitions:
+            if from_state in trans.etat_source.label_etat  and trans.alphabet == alpha:
+                returned_ele.append(*tuple(trans.etat_destination.label_etat))
+        return returned_ele
     
     def completer(self):
         ...
@@ -100,8 +128,17 @@ class Automate:
 2.
 Créer une fonction qui permet la lecture d’un automate à partir d’une entrée de la forme suivante :
 """
-
+def conversion_iterable(etat):
+    if isinstance(etat, Iterable):
+        return etat
+    return (etat,)
 def automate(alphabet : list[str], etats : list[str | int], etats_initiaux : list[str | int], etats_finaux : list[str | int], transitions : list[tuple[int, str | int, int]]) -> Automate:
+    #coversion_en_frozen_set
+    etats_initiaux = [conversion_iterable(label) for label in etats_initiaux]
+    etats_finaux = [conversion_iterable(label) for label in etats_finaux]
+    etats = [conversion_iterable(label) for label in etats]
+    transitions = [(conversion_iterable(src),alph,conversion_iterable(dest)) for src, alph, dest in transitions]
+
     #creation des alphabets
     aut_alphabets = [Alphabet(alph) for alph in alphabet]
 
@@ -113,9 +150,9 @@ def automate(alphabet : list[str], etats : list[str | int], etats_initiaux : lis
     
     #creation des transitions
     aut_transitions = []
-    for src, alph, dest in transitions:
-        aut_src = next((etat for etat in aut_etats if etat.label_etat == src))
-        aut_dest = next((etat for etat in aut_etats if etat.label_etat == dest))
+    for src, alph, dest in transitions:                
+        aut_src = next((etat for etat in aut_etats if src == tuple(etat.label_etat)))
+        aut_dest = next((etat for etat in aut_etats if dest == tuple(etat.label_etat)))
         aut_alph = next((aut_alph for aut_alph in aut_alphabets if aut_alph.val_alphabet == alph))
         aut_transitions.append(Transition(aut_src,aut_dest , aut_alph))
 
@@ -140,12 +177,12 @@ automate_determinise = exemple_automate.determiniser()
 
 # Vérification des résultats
 print("Automate original:")
-print("Alphabets:", [alpha.val_alphabet for alpha in exemple_automate.list_alphabets])
-print("États:", [etat.label_etat for etat in exemple_automate.list_etats])
-print("Transitions:", [(trans.etat_source.label_etat, trans.alphabet.val_alphabet, trans.etat_destination.label_etat) for trans in exemple_automate.list_transitions])
-# print([ele.label_etat for ele in new_initial_state.label_etat])
-# print(new_initial_state)
+print("Alphabets:",exemple_automate.return_alpha())
+print("États:", exemple_automate.return_etat())
+print("Transitions:",exemple_automate.return_transition())
+
+
 print("\nAutomate déterminisé:")
-print("Alphabets:", [alpha.val_alphabet for alpha in automate_determinise.list_alphabets])
-print("États:", [etat.label_etat for etat in automate_determinise.list_etats])
-print("Transitions:", [(set(trans.etat_source.label_etat), trans.alphabet.val_alphabet, set(trans.etat_destination.label_etat)) for trans in automate_determinise.list_transitions])
+print("Alphabets:",automate_determinise.return_alpha())
+print("États:", automate_determinise.return_etat())
+print("Transitions:",automate_determinise.return_transition())

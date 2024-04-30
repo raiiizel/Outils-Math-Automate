@@ -7,3 +7,5 @@ class CustomFrozenSet(frozenset):
 # Example usage:
 custom_set = CustomFrozenSet({1, 2, 3})
 print(custom_set)  # Output: {1, 2, 3}
+
+print([[j for j in i]for i in [1,2,3]])
