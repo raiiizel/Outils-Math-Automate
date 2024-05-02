@@ -51,18 +51,8 @@ class Automate:
         self.etats_initiaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Initial]
         self.etats_terminaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Terminal]
     
-    def __process_data(self,list_modifier):
-        initial_closure=[]
-        
-        for ele in list_modifier:
-            element=ele
-            if not isinstance(ele.label_etat,tuple):
-                element=(ele,)
-            for num in element:
-                initial_closure.append(*tuple(num.label_etat))   
-        return  initial_closure 
-    
-    def return_alpha(self):
+
+    def return_alpha(self)->list[str]:
         return  [alpha.val_alphabet for alpha in self.list_alphabets]
     
     def return_etat(self)-> list[tuple[set[str | int], str, set[str | int]]]:
@@ -106,18 +96,8 @@ class Automate:
 
         new_list_states = list(new_states.values())
         return Automate(self.list_alphabets, new_list_states, new_transitions)
-    
-    def  gerer_etat_multiple(self,returned_etat:frozenset,determiniser=False):
-        returned_ele=[]    
-        if len(tuple(returned_etat))>1:
-            if determiniser:
-                returned_ele.extend(returned_etat)
-            else :    
-                returned_ele.append(returned_etat)
-        else :
-            returned_ele.append(*returned_etat) 
-        return returned_ele        
-    def completer(self,etat_puit):
+ 
+    def completer(self,etat_puit:int | set):
 
         #definition des nouveau 
         list_transition=[]
@@ -128,17 +108,17 @@ class Automate:
 
 
         for etat in self.list_etats:
-            list_etat.append(*self.gerer_etat_multiple(etat.label_etat))
+            list_etat.append(*self.__gerer_etat_multiple(etat.label_etat))
             if etat.type_etat==TypeEtat.Initial:
-                list_etat_initial.append(*self.gerer_etat_multiple(etat.label_etat))
+                list_etat_initial.append(*self.__gerer_etat_multiple(etat.label_etat))
             elif etat.type_etat==TypeEtat.Terminal:  
-                list_etat_final.append(*self.gerer_etat_multiple(etat.label_etat))
+                list_etat_final.append(*self.__gerer_etat_multiple(etat.label_etat))
         for trans in self.list_transitions:
                 list_alphabets.append(trans.alphabet.val_alphabet) if trans.alphabet.val_alphabet not in list_alphabets else None
                 new_trans=(
-                    *self.gerer_etat_multiple(trans.etat_source.label_etat),
+                    *self.__gerer_etat_multiple(trans.etat_source.label_etat),
                     trans.alphabet.val_alphabet,
-                    *self.gerer_etat_multiple(trans.etat_destination.label_etat),
+                    *self.__gerer_etat_multiple(trans.etat_destination.label_etat),
                 )
                 list_transition.append(new_trans) if new_trans not in list_transition else None
         
@@ -161,41 +141,7 @@ class Automate:
             list_etat.pop(list_etat.index(etat_puit))                   
         return automate(list_alphabets,list_etat,list_etat_initial,list_etat_final,list_transition)            
     
-    
-    def __get_target_states(self, from_state:int|str, alpha:str):
-        returned_ele=[]
-        for trans in self.list_transitions:
-            if from_state in trans.etat_source.label_etat  and trans.alphabet.val_alphabet == alpha:
-                added=self.gerer_etat_multiple(trans.etat_destination.label_etat,True)
-                if len(added)>1:
-                    returned_ele.extend(added)  
-                else :
-                    returned_ele.append(*added)  
-        return conversion_iterable(returned_ele)
-    def group_creation(self, group: set, partition: list[set]) -> set[set]:
-        grouped = set()
-        for state1 in group:
-            for state2 in group:
-                if state1 != state2:
-                    if not self.__states_are_distinguishable(state1, state2, partition):
-                        grouped.add(conversion_iterable((state1, state2)))
-         
-        new_group = set()
-        new_group.update(grouped)
-        new_group.update({conversion_iterable(state) for state in group if not any(state in ele for ele in grouped)})
-                
-        return new_group
-    def conflict_gestion(self,new_partition_without_unique:list[set])->list[set]:
-        conflicts_etat = []
-        for group in new_partition_without_unique:
-            conflicts_group = set()
-            conflicts_group.update(group)
-            for other_group in new_partition_without_unique:
-                if conflicts_group.intersection(other_group):
-                    conflicts_group.update(other_group)
-            if conflicts_group not in conflicts_etat:
-                conflicts_etat.append(conflicts_group)
-        return  conflicts_etat    
+ 
       
     def minimiser(self):
 
@@ -214,12 +160,12 @@ class Automate:
                 if len(group)==1:
                     new_partition.append(group)
                     continue
-                new_group=self.group_creation(group,partition)
+                new_group=self.__group_creation(group,partition)
  
                 new_partition_without_unique += [set(ele) for ele in new_group if len(set(ele)) > 1]
                 new_partition += [set(ele) for ele in new_group if set(ele) not in new_partition_without_unique]
             
-            new_partition+=self.conflict_gestion(new_partition_without_unique)
+            new_partition+=self.__conflict_gestion(new_partition_without_unique)
 
             if new_partition == partition:
                 break
@@ -266,6 +212,61 @@ class Automate:
                 if trans1_check != trans2_check:
                     return True
         return False
+    def __process_data(self,list_modifier):
+        initial_closure=[]
+        
+        for ele in list_modifier:
+            element=ele
+            if not isinstance(ele.label_etat,tuple):
+                element=(ele,)
+            for num in element:
+                initial_closure.append(*tuple(num.label_etat))   
+        return  initial_closure 
+        
+    def  __gerer_etat_multiple(self,returned_etat:frozenset,determiniser=False):
+        returned_ele=[]    
+        if len(tuple(returned_etat))>1:
+            if determiniser:
+                returned_ele.extend(returned_etat)
+            else :    
+                returned_ele.append(returned_etat)
+        else :
+            returned_ele.append(*returned_etat) 
+        return returned_ele           
+    def __get_target_states(self, from_state:int|str, alpha:str):
+        returned_ele=[]
+        for trans in self.list_transitions:
+            if from_state in trans.etat_source.label_etat  and trans.alphabet.val_alphabet == alpha:
+                added=self.__gerer_etat_multiple(trans.etat_destination.label_etat,True)
+                if len(added)>1:
+                    returned_ele.extend(added)  
+                else :
+                    returned_ele.append(*added)  
+        return conversion_iterable(returned_ele)
+    def __group_creation(self, group: set, partition: list[set]) -> set[set]:
+        grouped = set()
+        for state1 in group:
+            for state2 in group:
+                if state1 != state2:
+                    if not self.__states_are_distinguishable(state1, state2, partition):
+                        grouped.add(conversion_iterable((state1, state2)))
+         
+        new_group = set()
+        new_group.update(grouped)
+        new_group.update({conversion_iterable(state) for state in group if not any(state in ele for ele in grouped)})
+                
+        return new_group
+    def __conflict_gestion(self,new_partition_without_unique:list[set])->list[set]:
+        conflicts_etat = []
+        for group in new_partition_without_unique:
+            conflicts_group = set()
+            conflicts_group.update(group)
+            for other_group in new_partition_without_unique:
+                if conflicts_group.intersection(other_group):
+                    conflicts_group.update(other_group)
+            if conflicts_group not in conflicts_etat:
+                conflicts_etat.append(conflicts_group)
+        return  conflicts_etat   
     def render(self):
         ...
 
