@@ -19,7 +19,7 @@ class AutomatonRenderer:
         displayed_transition = self.automaton.return_transition()
         return list_etats, etats_initiaux, etats_terminaux, displayed_transition
 
-    def render(self, output_file='automaton', format='png'):
+    def render(self, output_file='automaton', format='png' ):
         dot = Digraph()
         list_etats, etats_initiaux, etats_terminaux, displayed_transition = self.fixing_format()
 
@@ -40,7 +40,7 @@ class AutomatonRenderer:
             dot.node('', shape='point')
             dot.edge('', str(init), label='', style='bold')
 
-        dot.render(output_file, format=format, view=True)
+        dot.render(output_file, format=format, view=True )
 
 
 # Usage example
@@ -93,4 +93,6 @@ print("Alphabets:", automate_minimise_2.return_alpha())
 print("États:", automate_minimise_2.return_etat())
 print("Transitions:", automate_minimise_2.return_transition())
 renderer = AutomatonRenderer(exemple_automate)
+renderer.render(output_file='automaton', format='png')
+renderer = AutomatonRenderer(automate_minimise_2)
 renderer.render(output_file='automaton', format='png')
