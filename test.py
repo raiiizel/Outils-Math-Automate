@@ -1,11 +1,10 @@
-class CustomFrozenSet(frozenset):
-    def __str__(self):
-        # Convert the elements to a string representation and join them with commas
-        elements_str = ", ".join(str(ele) for ele in self)
-        return "{" + elements_str + "}"
+from graphviz import Digraph
 
-# Example usage:
-custom_set = CustomFrozenSet({1, 2, 3})
-print(custom_set)  # Output: {1, 2, 3}
+# Define your automaton
+automaton = Digraph()
+automaton.node('A')  # Add a state named 'A'
+automaton.node('B')  # Add a state named 'B'
+automaton.edge('A', 'B', label='0')  # Add a transition from 'A' to 'B' labeled '0'
 
-print([[j for j in i]for i in [1,2,3]])
+# Render the automaton
+automaton.render('automaton', format='png', view=True)

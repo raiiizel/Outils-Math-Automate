@@ -57,7 +57,11 @@ class Automate:
     
     def return_etat(self)-> list[tuple[set[str | int], str, set[str | int]]]:
         return [set(etat.label_etat)  for etat in self.list_etats]
-    
+    def return_etat_initial(self)-> list[tuple[set[str | int], str, set[str | int]]]:
+        return [set(etat.label_etat)  for etat in self.etats_initiaux]
+    def return_etat_terminaux(self)-> list[tuple[set[str | int], str, set[str | int]]]:
+        return [set(etat.label_etat)  for etat in self.etats_terminaux]
+          
     def return_transition(self)-> list[tuple[set[str | int], str, set[str | int]]]:
         return [(set(trans.etat_source.label_etat), trans.alphabet.val_alphabet, set(trans.etat_destination.label_etat)) for trans in self.list_transitions]
     
@@ -321,51 +325,3 @@ def automate(alphabet : list[str], etats : list[str | int], etats_initiaux : lis
 
 
 
-# Exemple de données de test pour la fonction automate
-alphabet = ['a', 'b']
-etats = [1, 2, 3, 4, 5, 6, 7, 8]
-etats_initiaux = [1]
-etats_finaux = [ 6, 7, 8]
-transitions =   [(1, 'a', 1),(1, 'b', 5),
-                (2, 'a', 2),(2, 'b', 5),
-                (3, 'a', 4),(3, 'b', 6),
-                (4, 'a', 3),(4, 'b', 8),
-                (5, 'b', 4), (5, 'a', 2),
-                (6, 'a', 3),(6, 'b', 7),
-                (7, 'b', 7),(7, 'a', 8),
-                (8, 'a', 7), (8, 'b', 7),
-                ]
-
-# Création de l'automate
-exemple_automate = automate(alphabet, etats, etats_initiaux, etats_finaux, transitions)
-
-# Exemple de données de test pour la méthode determiniser
-# On peut utiliser l'automate créé précédemment comme point de départ
-automate_determinise = exemple_automate.determiniser()
-automate_completer = exemple_automate.completer(0)
-
-# Vérification des résultats
-print("Automate original:")
-print("Alphabets:",exemple_automate.return_alpha())
-print("États:", exemple_automate.return_etat())
-print("Transitions:",exemple_automate.return_transition())
-
-
-print("\nAutomate déterminisé:")
-print("Alphabets:",automate_determinise.return_alpha())
-print("États:", automate_determinise.return_etat())
-print("Transitions:",automate_determinise.return_transition())
-
-print("\nAutomate completer:")
-print("Alphabets:",automate_completer.return_alpha())
-print("États:", automate_completer.return_etat())
-print("Transitions:",automate_completer.return_transition())
-
-# Appliquer la fonction minimiser
-automate_minimise_2 = exemple_automate.minimiser()
-
-# Vérification des résultats
-print("\nAutomate minimisé:")
-print("Alphabets:", automate_minimise_2.return_alpha())
-print("États:", automate_minimise_2.return_etat())
-print("Transitions:", automate_minimise_2.return_transition())
