@@ -107,7 +107,7 @@ class Automate:
         new_list_states = list(new_states.values())
         return Automate(self.list_alphabets, new_list_states, new_transitions)
     
-    def  gerer_etat_multiple(self,returned_etat,determiniser=False):
+    def  gerer_etat_multiple(self,returned_etat:frozenset,determiniser=False):
         returned_ele=[]    
         if len(tuple(returned_etat))>1:
             if determiniser:
@@ -172,74 +172,63 @@ class Automate:
                 else :
                     returned_ele.append(*added)  
         return conversion_iterable(returned_ele)
-    def group_creation(self,group,partition):
-        new_group=[]
+    def group_creation(self, group: set, partition: list[set]) -> set[set]:
+        grouped = set()
         for state1 in group:
             for state2 in group:
                 if state1 != state2:
-                    if self.states_are_distinguishable(state1, state2, partition):
-                        new_group.append(state1)
-                        new_group.append(state2) 
-                    else :
-                        new_group.append(conversion_iterable((state1,state2,)))          
-        new_group=set(new_group)
-        filer_new_group=set()
-        final=set()
-        for ele in new_group:
-            if type(ele) == tuple:
-                filer_new_group.add(ele)
-        for ele in new_group: 
-            found=False
-            if isinstance(ele,tuple): 
-                    final.add(ele)
-            else :
-                for tup in filer_new_group:
-                    if ele  in tup:       
-                        found=True
-            if  not found:
-                final.add(ele)
-        return final
-    def minimiser(self):
-        # init des premiers partition
+                    if not self.__states_are_distinguishable(state1, state2, partition):
+                        grouped.add(conversion_iterable((state1, state2)))
          
+        new_group = set()
+        new_group.update(grouped)
+        new_group.update({conversion_iterable(state) for state in group if not any(state in ele for ele in grouped)})
+                
+        return new_group
+    def conflict_gestion(self,new_partition_without_unique:list[set])->list[set]:
+        conflicts_etat = []
+        for group in new_partition_without_unique:
+            conflicts_group = set()
+            conflicts_group.update(group)
+            for other_group in new_partition_without_unique:
+                if conflicts_group.intersection(other_group):
+                    conflicts_group.update(other_group)
+            if conflicts_group not in conflicts_etat:
+                conflicts_etat.append(conflicts_group)
+        return  conflicts_etat    
+      
+    def minimiser(self):
+
+        # init des premiers partition
         etat_terminaux=set([ele for etat_teminal in self.etats_terminaux for ele in etat_teminal.label_etat])
         etats_init=set([ele for etat_int in self.list_etats for ele in etat_int.label_etat if ele not in etat_terminaux])
         partition = [etat_terminaux, etats_init]
         list_alphabets=[alpha.val_alphabet for alpha in self.list_alphabets ]
         new_partition = []
+        
         while True:
 
+            new_partition_without_unique=[]  
             for group in partition: 
                 new_group = []
                 if len(group)==1:
                     new_partition.append(group)
                     continue
                 new_group=self.group_creation(group,partition)
-                if new_group:
-                    for ele in new_group :
-                        new_partition.append(set(conversion_iterable(ele)))
-            new_partition_without_unique=[]  
-            new_partition_unique=[]  
-            for ele in new_partition:
-                if len(ele)>1:
-                    new_partition_without_unique.append(ele)
-                else :
-                    new_partition_unique.append(ele)          
-            conflicts_etat=[]
-            for group in new_partition_without_unique:
-                conflicts_group=set()
-                conflicts_group.update(group)
-                for ele in group:
-                    for other_group in new_partition_without_unique :
-                        if ele in other_group :
-                            conflicts_group.update(other_group)
-                conflicts_etat.append(conflicts_group) if conflicts_group not in conflicts_etat  else None
-            new_partition=conflicts_etat+new_partition_unique
+ 
+                new_partition_without_unique += [set(ele) for ele in new_group if len(set(ele)) > 1]
+                new_partition += [set(ele) for ele in new_group if set(ele) not in new_partition_without_unique]
+            
+            new_partition+=self.conflict_gestion(new_partition_without_unique)
 
             if new_partition == partition:
                 break
+
+
             partition = new_partition
             new_partition = []
+
+
         # Gather minimized states
         minimized_states = partition
 
@@ -250,11 +239,12 @@ class Automate:
         minimized_terminal_states = [state for state in minimized_states if any(s in etat.label_etat for etat in  self.etats_terminaux for s in state)]
 
         # Update transitions to reflect minimized states
-        minimized_transitions = self.update_transitions(minimized_states)
-        print(minimized_transitions)
+        minimized_transitions = self.__update_transitions(minimized_states)
+
+
         return automate(list_alphabets,minimized_states,minimized_initial_states,minimized_terminal_states,minimized_transitions)
 
-    def update_transitions(self, minimized_states):
+    def __update_transitions(self, minimized_states:list[set])->list[tuple[set[str | int] | int , str, set[str | int] | int]]:
         transitions = []
         for states in minimized_states:
             for alpha in self.list_alphabets:
@@ -266,8 +256,7 @@ class Automate:
                         transitions.append((states, alpha.val_alphabet, stats))
                         break
         return transitions
-    def states_are_distinguishable(self, state1:int, state2:int, partition:list[set[int]]):
-       
+    def __states_are_distinguishable(self, state1:int, state2:int, partition:list[set[int]])->bool:
         for alpha in self.list_alphabets:
             transitions1_target=self.__get_target_states(state1,alpha.val_alphabet)
             transitions2_target=self.__get_target_states(state2,alpha.val_alphabet)         
@@ -287,11 +276,12 @@ Créer une fonction qui permet la lecture d’un automate à partir d’une entr
 """
 
 
-def conversion_iterable(etat):
+def conversion_iterable(etat:Iterable | int) ->tuple[frozenset]:
     returned_value = etat
     if not isinstance(etat, Iterable):
         returned_value = (etat,)
     return tuple(frozenset(returned_value))
+
 def automate(alphabet : list[str], etats : list[str | int], etats_initiaux : list[str | int], etats_finaux : list[str | int], transitions : list[tuple[int, str | int, int]]) -> Automate:
     #coversion_en_frozen_set
     etats_initiaux = [conversion_iterable(label) for label in etats_initiaux]
