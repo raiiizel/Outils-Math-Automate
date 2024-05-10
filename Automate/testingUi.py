@@ -2,8 +2,8 @@ import wx
 import wx.html2 as wxhtml
 
 class MyBrowser(wx.Frame):
-    def __init__(self, *args, **kwds):
-        wx.Frame.__init__(self, *args, **kwds)
+    def __init__(self, *args, **kwgs):
+        wx.Frame.__init__(self, *args, **kwgs)
         self.panel = wx.Panel(self)
         self.browser = wxhtml.WebView.New(self.panel)
         self.browser.LoadURL("https://www.google.com")  # Load a web page

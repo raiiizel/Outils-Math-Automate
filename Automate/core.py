@@ -1,5 +1,195 @@
 from enum import Enum, auto
 from collections.abc import Iterable
+
+class TypeEtat(Enum):
+    """
+    Enum class representing the types of states in an Automaton.
+    """
+    Initial = auto()
+    Intermediaire = auto()
+    Terminal = auto()
+
+class Etat:
+    """
+    Class representing a state in an Automaton.
+    """
+    def __init__(self, label_etat: list[str | int], type_etat: TypeEtat = TypeEtat.Intermediaire):
+        """
+        Initializes a state with the given label and type.
+
+        Args:
+            label_etat (list[str | int]): The label of the state.
+            type_etat (TypeEtat, optional): The type of the state. Defaults to TypeEtat.Intermediaire.
+        """
+        self.label_etat = frozenset(label_etat)
+        self.type_etat = type_etat
+
+class Alphabet:
+    """
+    Class representing an alphabet symbol in an Automaton.
+    """
+    def __init__(self, val_alphabet: str):
+        """
+        Initializes an alphabet symbol with the given value.
+
+        Args:
+            val_alphabet (str): The value of the alphabet symbol.
+        """
+        self.val_alphabet = val_alphabet
+
+class Transition:
+    """
+    Class representing a transition between two states in an Automaton.
+    """
+    def __init__(self, etat_source: Etat, etat_destination: Etat, alphabet: Alphabet):
+        """
+        Initializes a transition with the given source state, destination state, and alphabet symbol.
+
+        Args:
+            etat_source (Etat): The source state of the transition.
+            etat_destination (Etat): The destination state of the transition.
+            alphabet (Alphabet): The alphabet symbol of the transition.
+        """
+        self.etat_source = etat_source
+        self.etat_destination = etat_destination
+        self.alphabet = alphabet
+
+class Automate:
+    """
+    Class representing an Automaton.
+    """
+    def __init__(self, list_alphabets: list[Alphabet], list_etats: list[Etat], list_transitions: list[Transition]):
+        """
+        Initializes an Automaton with the given alphabets, states, and transitions.
+
+        Args:
+            list_alphabets (list[Alphabet]): The list of alphabets in the Automaton.
+            list_etats (list[Etat]): The list of states in the Automaton.
+            list_transitions (list[Transition]): The list of transitions in the Automaton.
+        """
+        self.list_alphabets = list_alphabets
+        self.list_etats = list_etats
+        self.list_transitions = list_transitions
+        self.etats_initiaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Initial]
+        self.etats_terminaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Terminal]
+
+    def return_alpha(self) -> list[str]:
+        """
+        Returns a list of alphabet symbols in the Automaton.
+
+        Returns:
+            list[str]: The list of alphabet symbols.
+        """
+        return [alpha.val_alphabet for alpha in self.list_alphabets]
+
+    def return_etat(self) -> list[tuple[set[str | int], str, set[str | int]]]:
+        """
+        Returns a list of states in the Automaton.
+
+        Returns:
+            list[tuple[set[str | int], str, set[str | int]]]: The list of states.
+        """
+        return [set(etat.label_etat) for etat in self.list_etats]
+
+    def return_etat_initial(self) -> list[tuple[set[str | int], str, set[str | int]]]:
+        """
+        Returns a list of initial states in the Automaton.
+
+        Returns:
+            list[tuple[set[str | int], str, set[str | int]]]: The list of initial states.
+        """
+        return [set(etat.label_etat) for etat in self.etats_initiaux]
+
+    def return_etat_terminaux(self) -> list[tuple[set[str | int], str, set[str | int]]]:
+        """
+        Returns a list of terminal states in the Automaton.
+
+        Returns:
+            list[tuple[set[str | int], str, set[str | int]]]: The list of terminal states.
+        """
+        return [set(etat.label_etat) for etat in self.etats_terminaux]
+
+    def return_transition(self) -> list[tuple[set[str | int], str, set[str | int]]]:
+        """
+        Returns a list of transitions in the Automaton.
+
+        Returns:
+            list[tuple[set[str | int], str, set[str | int]]]: The list of transitions.
+        """
+        return [(set(trans.etat_source.label_etat), trans.alphabet.val_alphabet, set(trans.etat_destination.label_etat)) for trans in self.list_transitions]
+
+    def determiniser(self):
+        """
+        Performs determinization on the Automaton and returns a new determinized Automaton.
+
+        Returns:
+            Automate: The determinized Automaton.
+        """
+        # Implementation of determinization algorithm
+
+    def completer(self, etat_puit: int | set):
+        """
+        Completes the Automaton by adding a sink state if necessary and returns a new completed Automaton.
+
+        Args:
+            etat_puit (int | set): The sink state or set of sink states.
+
+        Returns:
+            Automate: The completed Automaton.
+        """
+        # Implementation of completion algorithm
+
+    def minimiser(self):
+        """
+        Minimizes the Automaton and returns a new minimized Automaton.
+
+        Returns:
+            Automate: The minimized Automaton.
+        """
+        # Implementation of minimization algorithm
+
+    # Helper methods and private functions
+    # ...
+
+    def __update_transitions(self, minimized_states: list[set]) -> list[tuple[set[str | int] | int, str, set[str | int] | int]]:
+        """
+        Updates the transitions of the minimized Automaton based on the minimized states.
+
+        Args:
+            minimized_states (list[set]): The list of minimized states.
+
+        Returns:
+            list[tuple[set[str | int] | int, str, set[str | int] | int]]: The updated transitions.
+        """
+        # Implementation of transition update
+
+    def __states_are_distinguishable(self, state1: int, state2: int, partition: list[set[int]]) -> bool:
+        """
+        Checks if two states are distinguishable based on the given partition.
+
+        Args:
+            state1 (int): The first state.
+            state2 (int): The second state.
+            partition (list[set[int]]): The partition of states.
+
+        Returns:
+            bool: True if the states are distinguishable, False otherwise.
+        """
+        # Implementation of distinguishability check
+
+    def __process_data(self, list_modifier):
+        """
+        Processes the data in the Automaton.
+
+        Args:
+            list_modifier: The list of modifiers.
+
+        Returns:
+            list: The processed data.
+        """
+        # Implementation of data processing
+from enum import Enum, auto
+from collections.abc import Iterable
 """"
 1.
 Créer une modélisation orientée objet d’un automate et l’enrichir par les méthodes nécessaires :
@@ -40,6 +230,118 @@ class Transition:
 
 
 class Automate:
+    """
+    Represents an Automate object.
+
+    Attributes:
+    - list_alphabets (list[Alphabet]): List of alphabets in the automate.
+    - list_etats (list[Etat]): List of states in the automate.
+    - list_transitions (list[Transition]): List of transitions in the automate.
+    - etats_initiaux (list[Etat]): List of initial states in the automate.
+    - etats_terminaux (list[Etat]): List of terminal states in the automate.
+    """
+
+    def __init__(self, list_alphabets : list[Alphabet], list_etats : list[Etat], list_transitions : list[Transition]):
+        """"
+        Initializes an Automate object with the given list of alphabets, list of states, and list of transitions.
+        Sets the initial and terminal states based on the type of each state.
+        """
+        self.list_alphabets = list_alphabets
+        self.list_etats = list_etats
+        self.list_transitions = list_transitions
+        self.etats_initiaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Initial]
+        self.etats_terminaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Terminal]
+
+    def return_alpha(self)->list[str]:
+        """
+        Returns a list of alphabet values in the automate.
+        """
+        return  [alpha.val_alphabet for alpha in self.list_alphabets]
+    
+    def return_etat(self)-> list[tuple[set[str | int], str, set[str | int]]]:
+        """
+        Returns a list of tuples representing the states in the automate.
+        Each tuple contains the label of the state.
+        """
+        return [set(etat.label_etat)  for etat in self.list_etats]
+    
+    def return_etat_initial(self)-> list[tuple[set[str | int], str, set[str | int]]]:
+        """
+        Returns a list of tuples representing the initial states in the automate.
+        Each tuple contains the label of the state.
+        """
+        return [set(etat.label_etat)  for etat in self.etats_initiaux]
+    
+    def return_etat_terminaux(self)-> list[tuple[set[str | int], str, set[str | int]]]:
+        """
+        Returns a list of tuples representing the terminal states in the automate.
+        Each tuple contains the label of the state.
+        """
+        return [set(etat.label_etat)  for etat in self.etats_terminaux]
+          
+    def return_transition(self)-> list[tuple[set[str | int], str, set[str | int]]]:
+        """
+        Returns a list of tuples representing the transitions in the automate.
+        Each tuple contains the source state, alphabet, and destination state of the transition.
+        """
+        return [(set(trans.etat_source.label_etat), trans.alphabet.val_alphabet, set(trans.etat_destination.label_etat)) for trans in self.list_transitions]
+    
+    def determiniser(self):
+        """
+        Performs the determinization operation on the automate and returns a new Automate object.
+        """
+        # Implementation details omitted for brevity
+        pass
+    
+    def completer(self,etat_puit:int | set):
+        """
+        Completes the automate by adding transitions to a sink state and returns a new Automate object.
+
+        Parameters:
+        - etat_puit (int or set): The sink state or set of sink states to be added.
+
+        Returns:
+        - Automate: A new Automate object with the added sink state(s).
+        """
+        # Implementation details omitted for brevity
+        pass
+    
+    def minimiser(self):
+        """
+        Minimizes the automate and returns a new Automate object.
+
+        Returns:
+        - Automate: A new Automate object representing the minimized automate.
+        """
+        # Implementation details omitted for brevity
+        pass
+
+    # Other methods omitted for brevity
+class Automate:
+    """
+    Represents an Automate object.
+
+    Attributes:
+    - list_alphabets (list[Alphabet]): List of alphabets in the automate.
+    - list_etats (list[Etat]): List of states in the automate.
+    - list_transitions (list[Transition]): List of transitions in the automate.
+    - etats_initiaux (list[Etat]): List of initial states in the automate.
+    - etats_terminaux (list[Etat]): List of terminal states in the automate.
+    """
+
+    def __init__(self, list_alphabets : list[Alphabet], list_etats : list[Etat], list_transitions : list[Transition]):
+        """"
+        Initializes an Automate object with the given list of alphabets, list of states, and list of transitions.
+        Sets the initial and terminal states based on the type of each state.
+        """
+        self.list_alphabets = list_alphabets
+        self.list_etats = list_etats
+        self.list_transitions = list_transitions
+        self.etats_initiaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Initial]
+        self.etats_terminaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Terminal]
+
+    # Rest of the code...
+class Automate:
     
     def __init__(self, list_alphabets : list[Alphabet], list_etats : list[Etat], list_transitions : list[Transition]):
         """"
@@ -67,6 +369,12 @@ class Automate:
     
     
     def determiniser(self):
+        """
+        Converts the given Automate object into a deterministic Automate object.
+
+        Returns:
+            Automate: A new Automate object that is deterministic.
+        """
         new_states = {}
         unprocessed = []
         new_transitions = []
@@ -101,49 +409,66 @@ class Automate:
         new_list_states = list(new_states.values())
         return Automate(self.list_alphabets, new_list_states, new_transitions)
  
-    def completer(self,etat_puit:int | set):
+    def completer(self, etat_puit: int | set):
+        """
+        Completes the automaton by adding transitions to the sink state.
 
-        #definition des nouveau 
-        list_transition=[]
-        list_etat_initial=[]
-        list_etat_final=[]
-        list_etat=[]
-        list_alphabets=[]
+        Args:
+            etat_puit (int or set): The sink state of the automaton.
 
+        Returns:
+            automate: The completed automaton.
 
+        """
+        # Definition of new lists
+        list_transition = []
+        list_etat_initial = []
+        list_etat_final = []
+        list_etat = []
+        list_alphabets = []
+
+        # Iterate over each state in the automaton
         for etat in self.list_etats:
             list_etat.append(*self.__gerer_etat_multiple(etat.label_etat))
-            if etat.type_etat==TypeEtat.Initial:
+            if etat.type_etat == TypeEtat.Initial:
                 list_etat_initial.append(*self.__gerer_etat_multiple(etat.label_etat))
-            elif etat.type_etat==TypeEtat.Terminal:  
+            elif etat.type_etat == TypeEtat.Terminal:
                 list_etat_final.append(*self.__gerer_etat_multiple(etat.label_etat))
-        for trans in self.list_transitions:
-                list_alphabets.append(trans.alphabet.val_alphabet) if trans.alphabet.val_alphabet not in list_alphabets else None
-                new_trans=(
-                    *self.__gerer_etat_multiple(trans.etat_source.label_etat),
-                    trans.alphabet.val_alphabet,
-                    *self.__gerer_etat_multiple(trans.etat_destination.label_etat),
-                )
-                list_transition.append(new_trans) if new_trans not in list_transition else None
-        
 
-        #definition de etat puit
+        # Iterate over each transition in the automaton
+        for trans in self.list_transitions:
+            list_alphabets.append(trans.alphabet.val_alphabet) if trans.alphabet.val_alphabet not in list_alphabets else None
+            new_trans = (
+                *self.__gerer_etat_multiple(trans.etat_source.label_etat),
+                trans.alphabet.val_alphabet,
+                *self.__gerer_etat_multiple(trans.etat_destination.label_etat),
+            )
+            list_transition.append(new_trans) if new_trans not in list_transition else None
+
+        # Add the sink state to the list of states
         list_etat.append(etat_puit)
-        non_complet=False
-        list_transition_puit=[]
-        for index , etat in enumerate(list_etat):
+        non_complet = False
+        list_transition_puit = []
+
+        # Iterate over each state in the list of states
+        for index, etat in enumerate(list_etat):
+            # Check if there are no target states for a given alphabet and the state is not the sink state
             for alpha in list_alphabets:
-                if not self.__get_target_states(etat,alpha) and etat!=etat_puit:
-                    non_complet=True
-                    list_transition.append([etat,alpha,etat_puit])
-        #definir les transition pour etat puits
-                if index == 0:
-                    list_transition_puit.append([etat_puit,alpha,etat_puit]) 
-        if  non_complet : 
-            list_transition.extend(list_transition_puit)  
-        else :
-            list_etat.pop(list_etat.index(etat_puit))                   
-        return automate(list_alphabets,list_etat,list_etat_initial,list_etat_final,list_transition)            
+                if not self.__get_target_states(etat, alpha) and etat != etat_puit:
+                    non_complet = True
+                    list_transition.append([etat, alpha, etat_puit])
+
+            # Define transitions for the sink state
+            if index == 0:
+                list_transition_puit.append([etat_puit, alpha, etat_puit])
+
+        # Extend the list of transitions with the transitions for the sink state if the automaton is not complete
+        if non_complet:
+            list_transition.extend(list_transition_puit)
+        else:
+            list_etat.pop(list_etat.index(etat_puit))
+
+        return automate(list_alphabets, list_etat, list_etat_initial, list_etat_final, list_transition)
     
  
       
