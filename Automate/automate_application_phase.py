@@ -29,6 +29,7 @@ class GraphGeneratorAutomaton:
         self.valued = valued
         self.state = 1
 
+
     def runGenerateGraph(self):
         """
         Runs the process of generating a simple graph using the AutomatonAlphabet class.
