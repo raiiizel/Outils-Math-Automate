@@ -4,11 +4,11 @@ import random
 import matplotlib.pyplot as plt
 from core import automate ,Automate
 from automate_render import AutomatonRenderer
-
+from math import floor
 class TypeGraphe(Enum):
     Simple = auto()
     Complet = auto()   
-    Bipartis = auto()
+    CompletBipartis = auto()
     Eulerien = auto()
     Hamiltonien = auto()
 
@@ -20,8 +20,8 @@ class AutomatonAlphabet(Enum):
 
 
 class GraphGeneratorAutomaton:
-
-    def __init__(self, num_nodes = 10, edge_prob = 0.5, directed=True, valued=True , type = TypeGraphe.Eulerien):
+    def __init__(self, num_nodes = 10, edge_prob = 0.5, directed=True, valued=True , type = TypeGraphe.CompletBipartis):
+       
         self.num_nodes = num_nodes
         self.edge_prob = edge_prob
         self.type= type
@@ -52,16 +52,33 @@ class GraphGeneratorAutomaton:
                 self.__add_edges()
             elif self.state == AutomatonAlphabet.finalization:      
                 self.__finalize()
+
         if self.type == TypeGraphe.Simple:
-            addEdges=f'  add_edges ( graphEdge < {self.edge_prob} )'
+            initNode=f'  init (numberNodes = {self.num_nodes})'
+            if self.valued:
+                addEdges=f'  add_valued_edges ( graphEdge < {self.edge_prob} )'
+            else :
+                addEdges=f'  add_edges ( graphEdge < {self.edge_prob} )'    
             endCondition=f' (pas boucle).(pas arret parrallele)'    
         if self.type == TypeGraphe.Complet:
-            addEdges=f'  add_edges ( graph.number_of_edges() < { round(self.num_nodes * (self.num_nodes - 1) / 2 ) })'
-            endCondition=f'    graph.number_of_edges() >= { round(self.num_nodes * (self.num_nodes - 1) / 2 ) }'
+            initNode=f'  init (numberNodes = {self.num_nodes})'
+            if self.valued:
+                addEdges=f'  add_valued_edges ( graph.number_of_edges() < { round(self.num_nodes * (self.num_nodes - 1) / 2 ) })'
+            else :
+                addEdges=f'  add_edges ( graph.number_of_edges() < { round(self.num_nodes * (self.num_nodes - 1) / 2 ) })'  
+            endCondition=f'    graph.number_of_edges() == { round(self.num_nodes * (self.num_nodes - 1) / 2 ) }'
+        if self.type == TypeGraphe.CompletBipartis:
+            initNode=f'  init . (numberNodes = {self.num_nodes}) . (topNodes et bottomNodes)'
+            if self.valued:
+                addEdges=f'  add_valued_edges. (graph.number_of_edges() < { round(self.top_nodes * self.bottom_nodes) }) . (topNodes liee avec bottomNodes)'
+            else :
+                addEdges=f'  add_edges .(graph.number_of_edges() < {round(self.top_nodes * self.bottom_nodes) }).(topNodes liee avec bottomNodes)'  
+            endCondition=f'    graph.number_of_edges() == {self.bottom_nodes * self.top_nodes}'
+
         self.automaton = self.__generateAutomaton(
-            initNode=f'  init (numberNodes = {self.num_nodes})',
+            initNode=initNode,
             addNodes=f'  add_nodes (graphNodes < {self.num_nodes})',
-            graphNodes=f'  graphNodes >= {self.num_nodes}',
+            graphNodes=f'  graphNodes == {self.num_nodes}',
             addEdges=addEdges,
             endCondition=endCondition,
             finalize='  finalize' )       
@@ -70,34 +87,65 @@ class GraphGeneratorAutomaton:
     def __initialize_graph(self):
         # Step 1: Initialize the graph
         self.graph =  nx.DiGraph() if self.directed else nx.Graph()
-        self.state = AutomatonAlphabet.add_nodes
-    
+        self.state = AutomatonAlphabet.add_nodes  
 
     def __add_nodes(self):
         # Step 2: Add nodes
-        self.graph.add_nodes_from(range(self.num_nodes))
+        if self.type == TypeGraphe.Simple or self.type == TypeGraphe.Complet :
+            self.graph.add_nodes_from(range(self.num_nodes))
+            
+        if self.type == TypeGraphe.CompletBipartis:
+            if self.num_nodes % 2 == 0:
+                self.top_nodes = int(self.num_nodes/2) 
+                self.bottom_nodes = int(self.num_nodes/2)
+            else :
+                self.top_nodes = floor(self.num_nodes/2)
+                self.bottom_nodes =  floor(self.num_nodes/2)+1
+            self.top = list(range(self.top_nodes))
+            self.bottom = list(range(self.top_nodes, self.top_nodes + self.bottom_nodes))
+
+
+            self.graph.add_nodes_from(self.top, bipartite=0)
+            self.graph.add_nodes_from(self.bottom, bipartite=1)       
         self.state = AutomatonAlphabet.add_edges
-        
+             
     def __add_edges(self):
-        # Step 3: Add edges
+        #ADD EDGES FOR A SIMPLE GRAPH
         if self.type == TypeGraphe.Simple:
             while True:
-                print(self.graph.number_of_edges() , self.num_nodes * (self.num_nodes - 1) / 2 * self.edge_prob)
                 for i in range(self.num_nodes):
                     for j in range(i + 1, self.num_nodes):
                         if random.random() < self.edge_prob:
                             if not self.graph.has_edge(i, j):
-                                self.graph.add_edge(i, j , weight=random.randint(1, 10) if self.valued else None)
+                                if self.valued:
+                                    self.graph.add_edge(i, j , weight=random.randint(1, 10))
+                                else :
+                                    self.graph.add_edge(i, j)    
                 if self.graph.number_of_edges() >= self.num_nodes * (self.num_nodes - 1) / 2 * self.edge_prob:      
                     break          
         
+        #ADD EDGES FOR A COMPLETE GRAPH
         if self.type == TypeGraphe.Complet:
             self.graph : nx.Graph = nx.complete_graph(self.num_nodes , nx.DiGraph() if self.directed else nx.Graph())
             if self.valued:
                 for i, j in self.graph.edges():
-                    self.graph[i][j]['weight'] = random.randint(1, 10)  
-        if self.type == TypeGraphe.Bipartis:
-            self.graph = nx.complete_bipartite_graph(self.num_nodes, self.num_nodes) 
+                    self.graph[i][j]['weight'] = random.randint(1, 10) 
+        
+
+        #ADD EDGES FOR A BIPARTITE GRAPH 
+        if self.type == TypeGraphe.CompletBipartis:
+            for u in self.top:
+                for v in self.bottom:
+                    if self.valued:
+                        value = random.randint(1, 10)
+                        if random.random() < 0.5:
+                            self.graph.add_edge(v, u, weight=value)
+                        else :
+                            self.graph.add_edge(u, v, weight=value)    
+                    else:
+                        self.graph.add_edge(u, v)
+
+    
         if self.type == TypeGraphe.Eulerien:
             self.graph = nx.eulerian_graph(self.num_nodes)
         if self.type == TypeGraphe.Hamiltonien:
@@ -129,10 +177,30 @@ class GraphGeneratorAutomaton:
             return self.graph
         else:
             raise Exception("Graph generation is not yet complete.")
-        
+    
+    def draw_graph(self):
+
+        generated_graph = self.get_graph()
+        pos = nx.spring_layout(generated_graph) 
+
+        #rendering a bipartite graph
+        if nx.is_bipartite(self.graph):
+            pos = nx.bipartite_layout(self.graph, self.top, align='horizontal')
+       
+
+        nx.draw(generated_graph, pos, with_labels=True, node_size=700, node_color="skyblue", font_size=12, font_weight="bold", arrows=True )
+        renderer = AutomatonRenderer(self.automaton)
+        renderer.render(output_file='automaton', format='png')
+
+        if self.valued:
+            edge_labels = {(u, v): d["weight"] for u, v, d in generated_graph.edges(data=True)}
+            nx.draw_networkx_edge_labels(generated_graph, pos, edge_labels=edge_labels)
+
+        plt.show()
+
 
 # Paramètres de génération
-num_nodes = 10  # Nombre de nœuds dans le graphe
+num_nodes = 5  # Nombre de nœuds dans le graphe
 edge_prob = 0.2  # Probabilité d'ajout d'une arête entre deux nœuds
 
 # Créer l'automate de génération de graphe
@@ -141,25 +209,8 @@ automaton = GraphGeneratorAutomaton(num_nodes, edge_prob)
 # Exécuter l'automate
 automaton.runGenerateGraph()
 
-# Récupérer le graphe généré
-generated_graph = automaton.get_graph()
+automaton.draw_graph()
 
-
-
-#visualiser le graphe
-pos = nx.spring_layout(generated_graph)  # positions for all nodes
-
-nx.draw(generated_graph, pos, with_labels=True, node_size=700, node_color="skyblue", font_size=12, font_weight="bold", arrows=True )
-
-edge_labels = {(u, v): d["weight"] for u, v, d in generated_graph.edges(data=True)}
-
-print(automaton.automaton)
-renderer = AutomatonRenderer(automaton.automaton)
-renderer.render(output_file='automaton', format='png')
-
-nx.draw_networkx_edge_labels(generated_graph, pos, edge_labels=edge_labels)
-
-plt.show()
 
 
 
