@@ -1,5 +1,5 @@
 from enum import Enum, auto
-import networkx as nx
+import networkx as nx 
 import random
 import matplotlib.pyplot as plt
 from core import automate ,Automate
@@ -20,7 +20,7 @@ class AutomatonAlphabet(Enum):
 
 
 class GraphGeneratorAutomaton:
-    def __init__(self, num_nodes = 10, edge_prob = 0.5, directed=True, valued=True , type = TypeGraphe.CompletBipartis):
+    def __init__(self, num_nodes = 10, edge_prob = 0.5, directed=False, valued=False , type = TypeGraphe.Eulerien):
        
         self.num_nodes = num_nodes
         self.edge_prob = edge_prob
@@ -53,7 +53,7 @@ class GraphGeneratorAutomaton:
             elif self.state == AutomatonAlphabet.finalization:      
                 self.__finalize()
 
-        if self.type == TypeGraphe.Simple:
+        if self.type == TypeGraphe.Simple or self.type == TypeGraphe.Eulerien:
             initNode=f'  init (numberNodes = {self.num_nodes})'
             if self.valued:
                 addEdges=f'  add_valued_edges ( graphEdge < {self.edge_prob} )'
@@ -74,14 +74,23 @@ class GraphGeneratorAutomaton:
             else :
                 addEdges=f'  add_edges .(graph.number_of_edges() < {round(self.top_nodes * self.bottom_nodes) }).(topNodes liee avec bottomNodes)'  
             endCondition=f'    graph.number_of_edges() == {self.bottom_nodes * self.top_nodes}'
-
+        if self.type == TypeGraphe.Eulerien:
+            initNode=f'  init (numberNodes = {self.num_nodes})'
+            addEdges=f'  add_edges ( graph.number_of_edges() < { round(self.num_nodes * (self.num_nodes - 1) / 2 ) })'  
+            endCondition=f'    graph.number_of_edges() == { round(self.num_nodes * (self.num_nodes - 1) / 2 ) }'
+            removeEdges= f' remove_edges( Node_Degree1 % 2 != 0 && Node_Degree2 % 2 != 0)'
+            endCondition2= f' Nodes_Degree % 2 == 0'
+            
         self.automaton = self.__generateAutomaton(
             initNode=initNode,
-            addNodes=f'  add_nodes (graphNodes < {self.num_nodes})',
+            addNodes= f'  add_nodes (graphNodes < {self.num_nodes})',
             graphNodes=f'  graphNodes == {self.num_nodes}',
             addEdges=addEdges,
             endCondition=endCondition,
-            finalize='  finalize' )       
+            finalize='  finalize',
+            removeEdges=removeEdges,
+            endCondition2=endCondition2
+            )
 
 
     def __initialize_graph(self):
@@ -91,7 +100,7 @@ class GraphGeneratorAutomaton:
 
     def __add_nodes(self):
         # Step 2: Add nodes
-        if self.type == TypeGraphe.Simple or self.type == TypeGraphe.Complet :
+        if self.type == TypeGraphe.Simple or self.type == TypeGraphe.Complet or self.type == TypeGraphe.Eulerien : 
             self.graph.add_nodes_from(range(self.num_nodes))
             
         if self.type == TypeGraphe.CompletBipartis:
@@ -103,8 +112,7 @@ class GraphGeneratorAutomaton:
                 self.bottom_nodes =  floor(self.num_nodes/2)+1
             self.top = list(range(self.top_nodes))
             self.bottom = list(range(self.top_nodes, self.top_nodes + self.bottom_nodes))
-
-
+            
             self.graph.add_nodes_from(self.top, bipartite=0)
             self.graph.add_nodes_from(self.bottom, bipartite=1)       
         self.state = AutomatonAlphabet.add_edges
@@ -145,11 +153,26 @@ class GraphGeneratorAutomaton:
                     else:
                         self.graph.add_edge(u, v)
 
-    
+         #ADD EDGES FOR AN EULERIEN GRAPH 
         if self.type == TypeGraphe.Eulerien:
-            self.graph = nx.eulerian_graph(self.num_nodes)
-        if self.type == TypeGraphe.Hamiltonien:
-            self.graph = nx.hameltonien_graph(self.num_nodes)            
+            
+            self.graph.add_edges_from([(i, j) for i in range(self.num_nodes) 
+                                       for j in range(self.num_nodes) 
+                                       if not self.graph.has_edge(i, j) and i!=j
+                                       ]) 
+            # Create a list to store nodes with odd degree
+            odd_degree_nodes = []
+
+            # Connect nodes to make the graph Eulerian
+            for node in self.graph.nodes():
+                degree = self.graph.degree(node)
+                if degree % 2 != 0:
+                    odd_degree_nodes.append(node)
+
+            while len(odd_degree_nodes) > 1:
+                node1 = odd_degree_nodes.pop()
+                node2 = odd_degree_nodes.pop()
+                self.graph.remove_edge(node1, node2)
 
         self.state = AutomatonAlphabet.finalization
     def __finalize(self):
@@ -157,19 +180,39 @@ class GraphGeneratorAutomaton:
         self.state = AutomatonAlphabet.finalization
         print("Graph generation is complete.")
 
-    def __generateAutomaton(self, endCondition :str, initNode :str , addNodes :str, graphNodes :str, addEdges :str, finalize  :str) -> Automate:
-        self.alphabet = [initNode, addNodes, graphNodes, addEdges, endCondition, finalize]
+    def __generateAutomaton(self, endCondition :str, 
+                            initNode :str ,
+                            addNodes :str, 
+                            graphNodes :str, 
+                            addEdges :str,
+                            removeEdges :str,
+                            endCondition2:str, 
+                            finalize  :str) -> Automate:
+        self.alphabet = [initNode, addNodes, graphNodes, addEdges, endCondition,removeEdges,endCondition2, finalize]
         self.etats = [1, 2, 3, 4, 5]
         self.etats_initiaux = [1]
-        self.etats_finaux = [5]
-        self.transitions = [
-            (1, initNode, 2),
-            (2, addNodes, 2),
-            (2, graphNodes, 3),
-            (3, addEdges, 3),
-            (3, endCondition, 4),
-            (4, finalize, 5)
-        ]
+        if self.type == TypeGraphe.Eulerien:
+            self.etats_finaux = [6]
+            self.transitions = [
+                (1, initNode, 2),
+                (2, addNodes, 2),
+                (2, graphNodes, 3),
+                (3, addEdges, 3),
+                (3, endCondition, 4),
+                (4, removeEdges, 4),
+                (4, endCondition2, 5),
+                (5, finalize, 6)
+            ]
+        else:
+            self.etats_finaux = [5]
+            self.transitions = [
+                (1, initNode, 2),
+                (2, addNodes, 2),
+                (2, graphNodes, 3),
+                (3, addEdges, 3),
+                (3, endCondition, 4),
+                (4, finalize, 5)
+            ] 
         return automate(self.alphabet, self.etats, self.etats_initiaux, self.etats_finaux, self.transitions)
 
     def get_graph(self):
@@ -184,23 +227,25 @@ class GraphGeneratorAutomaton:
         pos = nx.spring_layout(generated_graph) 
 
         #rendering a bipartite graph
-        if nx.is_bipartite(self.graph):
-            pos = nx.bipartite_layout(self.graph, self.top, align='horizontal')
-       
-
+        if self.type == TypeGraphe.CompletBipartis:
+            pos = nx.bipartite_layout(self.graph, self.top, align='horizontal')  
+            
         nx.draw(generated_graph, pos, with_labels=True, node_size=700, node_color="skyblue", font_size=12, font_weight="bold", arrows=True )
         renderer = AutomatonRenderer(self.automaton)
         renderer.render(output_file='automaton', format='png')
 
-        if self.valued:
-            edge_labels = {(u, v): d["weight"] for u, v, d in generated_graph.edges(data=True)}
+        if self.valued or self.type == TypeGraphe.Eulerien:
+            if self.type == TypeGraphe.Eulerien: 
+                circuit = list(nx.eulerian_circuit(self.graph))
+                edge_labels = {edge: i for i, edge in enumerate(circuit)}  
+                print("Eulerian Circuit:", circuit)   
+            else:
+                edge_labels = {(u, v): d["weight"] for u, v, d in generated_graph.edges(data=True)}
             nx.draw_networkx_edge_labels(generated_graph, pos, edge_labels=edge_labels)
-
         plt.show()
 
-
 # Paramètres de génération
-num_nodes = 5  # Nombre de nœuds dans le graphe
+num_nodes = 5 # Nombre de nœuds dans le graphe
 edge_prob = 0.2  # Probabilité d'ajout d'une arête entre deux nœuds
 
 # Créer l'automate de génération de graphe
