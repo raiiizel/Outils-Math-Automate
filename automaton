@@ -1,23 +1,16 @@
 digraph {
-	"{1, 2}"
-	"{5}"
+	"{1}"
+	"{2}"
 	"{3}"
 	"{4}"
-	"{6}" [shape=doublecircle]
-	"{8, 7}" [shape=doublecircle]
-	"{6}" -> "{3}" [label=a]
-	"{6}" -> "{8, 7}" [label=b]
-	"{5}" -> "{1, 2}" [label=a]
-	"{5}" -> "{4}" [label=b]
-	"{3}" -> "{4}" [label=a]
-	"{3}" -> "{6}" [label=b]
-	"{4}" -> "{3}" [label=a]
-	"{4}" -> "{8, 7}" [label=b]
-	"{8, 7}" -> "{8, 7}" [label=a]
-	"{8, 7}" -> "{8, 7}" [label=b]
-	"{1, 2}" -> "{1, 2}" [label=a]
-	"{1, 2}" -> "{5}" [label=b]
-	"" -> "{1, 2}" [style=invis]
+	"{5}" [shape=doublecircle]
+	"{1}" -> "{2}" [label="  init (numberNodes = 10)"]
+	"{2}" -> "{2}" [label="  add_nodes (graphNodes < 10)"]
+	"{2}" -> "{3}" [label="  graphNodes >= 10"]
+	"{3}" -> "{3}" [label="  add_edges ( graph.number_of_edges() < 45)"]
+	"{3}" -> "{4}" [label="    graph.number_of_edges() >= 45"]
+	"{4}" -> "{5}" [label="  finalize"]
+	"" -> "{1}" [style=invis]
 	"" [shape=point]
-	"" -> "{1, 2}" [label="" style=bold]
+	"" -> "{1}" [label="" style=bold]
 }
