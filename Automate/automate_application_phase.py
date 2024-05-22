@@ -20,7 +20,7 @@ class AutomatonAlphabet(Enum):
 
 
 class GraphGeneratorAutomaton:
-    def __init__(self, num_nodes = 10, edge_prob = 0.5, directed=False, valued=False , type = TypeGraphe.Eulerien):
+    def __init__(self, num_nodes = 10, edge_prob = 0.5, directed=True, valued=False , type = TypeGraphe.Hamiltonien):
        
         self.num_nodes = num_nodes
         self.edge_prob = edge_prob
@@ -53,7 +53,9 @@ class GraphGeneratorAutomaton:
             elif self.state == AutomatonAlphabet.finalization:      
                 self.__finalize()
 
-        if self.type == TypeGraphe.Simple or self.type == TypeGraphe.Eulerien:
+        removeEdges=''
+        endCondition2=''
+        if self.type == TypeGraphe.Simple or self.type == TypeGraphe.Hamiltonien:
             initNode=f'  init (numberNodes = {self.num_nodes})'
             if self.valued:
                 addEdges=f'  add_valued_edges ( graphEdge < {self.edge_prob} )'
@@ -78,8 +80,12 @@ class GraphGeneratorAutomaton:
             initNode=f'  init (numberNodes = {self.num_nodes})'
             addEdges=f'  add_edges ( graph.number_of_edges() < { round(self.num_nodes * (self.num_nodes - 1) / 2 ) })'  
             endCondition=f'    graph.number_of_edges() == { round(self.num_nodes * (self.num_nodes - 1) / 2 ) }'
-            removeEdges= f' remove_edges( Node_Degree1 % 2 != 0 && Node_Degree2 % 2 != 0)'
-            endCondition2= f' Nodes_Degree % 2 == 0'
+            if self.directed == False:
+                removeEdges= f' remove_edges( Node_Degree1 % 2 != 0 && Node_Degree2 % 2 != 0)'
+                endCondition2= f' Nodes_Degree % 2 == 0'
+            else:
+                removeEdges= f' remove_edges ( Node_in_Degree != Node_out_degree )'
+                endCondition2= f' Nodes_in_Degree == Nodes_out_degree '
             
         self.automaton = self.__generateAutomaton(
             initNode=initNode,
@@ -140,6 +146,7 @@ class GraphGeneratorAutomaton:
                     self.graph[i][j]['weight'] = random.randint(1, 10) 
         
 
+
         #ADD EDGES FOR A BIPARTITE GRAPH 
         if self.type == TypeGraphe.CompletBipartis:
             for u in self.top:
@@ -153,13 +160,13 @@ class GraphGeneratorAutomaton:
                     else:
                         self.graph.add_edge(u, v)
 
-         #ADD EDGES FOR AN EULERIEN GRAPH 
+        #ADD EDGES FOR AN EULERIEN GRAPH 
         if self.type == TypeGraphe.Eulerien:
-            
             self.graph.add_edges_from([(i, j) for i in range(self.num_nodes) 
-                                       for j in range(self.num_nodes) 
-                                       if not self.graph.has_edge(i, j) and i!=j
-                                       ]) 
+                                    for j in range(self.num_nodes) 
+                                    if not self.graph.has_edge(i, j) and i!= j 
+                                    ]) 
+
             # Create a list to store nodes with odd degree
             odd_degree_nodes = []
 
@@ -173,6 +180,24 @@ class GraphGeneratorAutomaton:
                 node1 = odd_degree_nodes.pop()
                 node2 = odd_degree_nodes.pop()
                 self.graph.remove_edge(node1, node2)
+
+        #ADD EDGES FOR AN HAMELTONIEN GRAPH 
+        if self.type == TypeGraphe.Hamiltonien:
+            hamiltonian_path = list(range(self.num_nodes))
+            random.shuffle(hamiltonian_path)
+            hamiltonian_path.append(hamiltonian_path[0])
+            
+            # Add edges to form the Hamiltonian cycle
+            for index in range(self.num_nodes-1):
+                print(index)
+                self.graph.add_edge(hamiltonian_path[index], hamiltonian_path[index+1] , weight = index )
+            
+            # Optionally add additional edges
+            for i in range(self.num_nodes):
+                for j in range(i + 1, self.num_nodes):
+                    if random.random() > self.edge_prob and not self.graph.has_edge(i, j)  and not self.graph.has_edge(j,i) :
+                        self.graph.add_edge(i, j , weight= -1)
+
 
         self.state = AutomatonAlphabet.finalization
     def __finalize(self):
@@ -234,7 +259,7 @@ class GraphGeneratorAutomaton:
         renderer = AutomatonRenderer(self.automaton)
         renderer.render(output_file='automaton', format='png')
 
-        if self.valued or self.type == TypeGraphe.Eulerien:
+        if self.valued or self.type == TypeGraphe.Eulerien  or self.type == TypeGraphe.Hamiltonien:
             if self.type == TypeGraphe.Eulerien: 
                 circuit = list(nx.eulerian_circuit(self.graph))
                 edge_labels = {edge: i for i, edge in enumerate(circuit)}  
@@ -243,6 +268,8 @@ class GraphGeneratorAutomaton:
                 edge_labels = {(u, v): d["weight"] for u, v, d in generated_graph.edges(data=True)}
             nx.draw_networkx_edge_labels(generated_graph, pos, edge_labels=edge_labels)
         plt.show()
+
+
 
 # Paramètres de génération
 num_nodes = 5 # Nombre de nœuds dans le graphe
