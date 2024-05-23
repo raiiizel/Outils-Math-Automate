@@ -1,13 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://unpkg.com/htmx.org@1.9.12"
+      integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
+      crossorigin="anonymous"
+    ></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
+
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"
+    ></script>
+
     <title>Automates Finies - Graphe</title>
-</head>
-<body>
-    
-</body>
+  </head>
+  <body>
+    <div class="w-screen h-screen flex flex-col relative">
+      <div
+        class="flex justify-center items-center w-full border-b border-gray-200 h-20"
+      >
+        <img
+          src="{{ url_for('static', filename='src/ensam logo.png') }}"
+          alt=""
+          class="my-2 h-16"
+        />
+      </div>
+      <div class="flex justify-center items-center flex-grow bg-gray-100">
+        <div class="bg-white rounded-lg h-fit min-h-96 w-1/3 min-w-96 border border-gray-200 p-4 flex flex-col items-center">
+          <h1 class="text-3xl font-bold text-gray-600">Parametres du graphe</h1>
+          <div class="w-11/12 h-px bg-gray-300 my-4"></div>
+          <form action="" method="post" class="w-full h-full" >
+            <div class="flex-grow flex flex-col items-start w-full h-full">
+              <label for="nb_noeuds" class="text-gray-600"
+                >Nombre de noeuds :</label
+              >
+              <div class="flex justify-center w-full pt-2 pb-4">
+                <div
+                  class="flex items-center justify-center rounded border border-gray-200"
+                >
+                  <button
+                    type="button"
+                    class="size-10 leading-10 text-gray-600 transition hover:opacity-75"
+                    onclick="$('#nb_noeuds').val(Math.max(0, parseInt($('#nb_noeuds').val(), 10) - 1))"
+                  >
+                    &minus;
+                  </button>
+
+                  <input
+                    type="number"
+                    id="nb_noeuds"
+                    value="1"
+                    class="h-10 w-16 border-transparent text-center [-moz-appearance:_textfield] sm:text-sm [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+                  />
+
+                  <button
+                    type="button"
+                    class="size-10 leading-10 text-gray-600 transition hover:opacity-75"
+                    onclick="$('#nb_noeuds').val(Math.max(0, parseInt($('#nb_noeuds').val(), 10) + 1))"
+                  >
+                    &plus;
+                  </button>
+                </div>
+              </div>
+
+              <label for="dirige_ou_non" class="text-gray-600"
+                >Dirigé/Non Dirigé :</label
+              >
+              <div class="flex justify-center w-full gap-4 pt-2 pb-4">
+                <label
+                  for="dirige"
+                  class="flex cursor-pointer items-center justify-center rounded-md border border-gray-100 bg-white px-3 py-2 text-gray-900 hover:border-gray-200 w-32"
+                >
+                  <input
+                    type="radio"
+                    name="dirige_ou_non"
+                    id="dirige"
+                    value="1"
+                    class="peer sr-only"
+                  />
+                  <span class="peer-checked:text-blue-500"> Dirigé </span>
+                </label>
+                <label
+                  for="non_dirige"
+                  class="flex cursor-pointer items-center justify-center rounded-md border border-gray-100 bg-white px-3 py-2 text-gray-900 hover:border-gray-200 w-32"
+                >
+                  <input
+                    type="radio"
+                    name="dirige_ou_non"
+                    id="non_dirige"
+                    value="0"
+                    checked
+                    class="peer sr-only"
+                  />
+                  <span class="peer-checked:text-blue-500">Non dirigé </span>
+                </label>
+              </div>
+            </div>
+            <label for="dirige_ou_non" class="text-gray-600"
+              >Orienté/Non Orienté :</label
+            >
+            <div class="flex justify-center w-full gap-4 pt-2 pb-4">
+              <label
+                for="oriente"
+                class="flex cursor-pointer items-center justify-center rounded-md border border-gray-100 bg-white px-3 py-2 text-gray-900 hover:border-gray-200 w-32"
+              >
+                <input
+                  type="radio"
+                  name="oriente_ou_non"
+                  id="oriente"
+                  value="1"
+                  class="peer sr-only"
+                />
+                <span class="peer-checked:text-blue-500"> Orienté </span>
+              </label>
+              <label
+                for="non_oriente"
+                class="flex cursor-pointer items-center justify-center rounded-md border border-gray-100 bg-white px-3 py-2 text-gray-900 hover:border-gray-200 w-32"
+              >
+                <input
+                  type="radio"
+                  name="oriente_ou_non"
+                  id="non_oriente"
+                  value="0"
+                  checked
+                  class="peer sr-only"
+                />
+                <span class="peer-checked:text-blue-500">Non orienté </span>
+              </label>
+            </div>
+            <label for="type_graphe" class="text-gray-600">Type :</label>
+            <div class="flex justify-center w-full gap-4 pt-2 pb-4">
+              <select
+                name="type_graphe"
+                id="type_graphe"
+                class="mt-1.5 w-full rounded-lg border-gray-300 text-gray-700 sm:text-sm"
+              >
+                <option value="simple">Simple</option>
+                <option value="eulerien">Eulerien</option>
+                <option value="complet">Complet</option>
+              </select>
+            </div>
+            <div class="flex justify-center w-full gap-4 pt-2">
+              <button
+                class="group relative inline-flex items-center overflow-hidden rounded bg-blue-600 px-8 py-3 text-white focus:outline-none focus:ring active:bg-blue-500"
+                type="submit"
+              >
+                <span
+                  class="absolute -end-full transition-all group-hover:end-4"
+                >
+                  <svg
+                    class="size-5 rtl:rotate-180"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    />
+                  </svg>
+                </span>
+
+                <span
+                  class="text-sm font-medium transition-all group-hover:me-4"
+                >
+                  Afficher l'Automate
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="absolute text-gray-400 bottom-2 right-2 w-fit">
+        Made with ❤️ by O.Darrazi, I.Goumrane, I.Moufatih
+      </div>
+    </div>
+  </body>
 </html>
