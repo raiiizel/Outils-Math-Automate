@@ -10,6 +10,9 @@ def index():
 def display():
     return render_template("result.html")
 
+@app.route("/graph_form", methods = ["GET","POST"])
+def graph_form():
+    return render_template("graph_form.html")
 
 if __name__ == '__main__':
     app.run(debug=True)
