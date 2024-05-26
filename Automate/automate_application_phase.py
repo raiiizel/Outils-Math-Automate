@@ -246,7 +246,7 @@ class GraphGeneratorAutomaton:
         else:
             raise Exception("Graph generation is not yet complete.")
     
-    def draw_graph(self):
+    def draw_graph(self, show=True):
 
         generated_graph = self.get_graph()
         pos = nx.spring_layout(generated_graph) 
@@ -267,7 +267,12 @@ class GraphGeneratorAutomaton:
             else:
                 edge_labels = {(u, v): d["weight"] for u, v, d in generated_graph.edges(data=True)}
             nx.draw_networkx_edge_labels(generated_graph, pos, edge_labels=edge_labels)
-        plt.show()
+        if show:
+            plt.show()
+
+        def save_graph(self, path):
+            self.draw_graph(show=False)
+            plt.savefig(path)
 
 
 
