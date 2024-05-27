@@ -2,8 +2,8 @@ from enum import Enum, auto
 import networkx as nx 
 import random
 import matplotlib.pyplot as plt
-from core import automate ,Automate
-from automate_render import AutomatonRenderer
+from .core import automate ,Automate
+from .automate_render import AutomatonRenderer
 from math import floor
 class TypeGraphe(Enum):
     Simple = auto()
@@ -275,18 +275,18 @@ class GraphGeneratorAutomaton:
             plt.savefig(path)
 
 
+if __name__ == "__main":
+    # Paramètres de génération
+    num_nodes = 5 # Nombre de nœuds dans le graphe
+    edge_prob = 0.2  # Probabilité d'ajout d'une arête entre deux nœuds
 
-# Paramètres de génération
-num_nodes = 5 # Nombre de nœuds dans le graphe
-edge_prob = 0.2  # Probabilité d'ajout d'une arête entre deux nœuds
+    # Créer l'automate de génération de graphe
+    automaton = GraphGeneratorAutomaton(num_nodes, edge_prob)
 
-# Créer l'automate de génération de graphe
-automaton = GraphGeneratorAutomaton(num_nodes, edge_prob)
+    # Exécuter l'automate
+    automaton.runGenerateGraph()
 
-# Exécuter l'automate
-automaton.runGenerateGraph()
-
-automaton.draw_graph()
+    automaton.draw_graph()
 
 
 

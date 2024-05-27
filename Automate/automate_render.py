@@ -1,4 +1,4 @@
-from core import automate,Automate
+from .core import automate,Automate
 from graphviz import Digraph
 
 
