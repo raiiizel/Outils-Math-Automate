@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://unpkg.com/htmx.org@1.9.12"
+      integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
+
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"
+    ></script>
+
+    <title>Automates Finies - Graphe</title>
+  </head>
+  <body>
+    <div class="w-screen h-screen flex flex-col relative">
+      <div
+        class="flex justify-center items-center w-full border-b border-gray-200 h-20"
+      >
+        <img
+          src="{{ url_for('static', filename='src/ensam logo.png') }}"
+          alt=""
+          class="my-2 h-16"
+        />
+      </div>
+      <div class="flex justify-center items-center flex-grow bg-gray-100">
+        <div class="bg-white rounded-lg h-fit overflow-auto w-1/3 min-w-96 border border-gray-200 p-4 flex flex-col items-center" id="content_container">
+          {% include 'graph_form.html' %}
+        </div>
+      </div>
+      <div class="absolute text-gray-400 bottom-2 right-2 w-fit">
+        Made with ❤️ by O.Darrazi, I.Goumrane, I.Moufatih
+      </div>
+    </div>
+  </body>
+</html>

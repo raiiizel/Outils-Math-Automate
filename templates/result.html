@@ -1,0 +1,118 @@
+<div class="flex my-2 gap-4">
+  <span class="font-bold text-gray-600">Automate</span>
+  <label
+    for="graph_ou_automate"
+    class="relative h-8 w-14 cursor-pointer rounded-full bg-gray-300 transition [-webkit-tap-highlight-color:_transparent]"
+  >
+    <input type="checkbox" name="graph_ou_automate" id="graph_ou_automate" class="peer sr-only" />
+
+    <span
+      class="absolute inset-y-0 start-0 m-1 size-6 rounded-full bg-white transition-all peer-checked:start-6"
+    ></span>
+  </label>
+  <span class="font-bold text-gray-600">Graphe</span>
+</div>
+<div class="flex flex-col h-[30rem] w-full relative">
+  <div
+    id="automaton"
+    class="bg-[url('{{automaton_image_url}}')] bg-no-repeat bg-contain bg-white bg-center w-full flex-grow"
+  >
+    <div
+    id="graph"
+      class="bg-[url('{{graphe_image_url}}')] bg-no-repeat bg-white bg-contain bg-center opacity-0 absolute top-0 bottom-0 right-0 left-0 transition-opacity duration-300  rounded-lg"
+    >
+    </div>
+  </div>
+</div>
+<div class="flex justify-center w-full gap-4 pt-2">
+  <button
+    hx-get="graph_form"
+    hx-target="#content_container"
+    class="group relative inline-flex items-center overflow-hidden rounded border border-current px-8 py-3 text-blue-600 focus:outline-none focus:ring active:text-blue-500"
+  >
+    <span class="absolute -start-full transition-all group-hover:start-4">
+      <svg
+        class="w-6 h-6 text-blue-500"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M5 12h14M5 12l4-4m-4 4 4 4"
+        />
+      </svg>
+    </span>
+
+    <span class="text-sm font-medium transition-all group-hover:ms-4">
+      Revenir
+    </span>
+  </button>
+  <button
+    class="group relative inline-flex items-center overflow-hidden rounded bg-blue-600 px-8 py-3 text-white focus:outline-none focus:ring active:bg-blue-500"
+    id="download"
+  >
+    <span class="absolute -end-full transition-all group-hover:end-4">
+      <svg
+        class="w-6 h-6 text-white"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4"
+        />
+      </svg>
+    </span>
+
+    <span class="text-sm font-medium transition-all group-hover:me-4">
+      Telecharger
+    </span>
+  </button>
+</div>
+
+<script>
+  document.getElementById("download").addEventListener("click", function () {
+    var div = document.getElementById("automaton");
+    var style = window.getComputedStyle(div);
+    var backgroundImage = style.backgroundImage;
+
+    // Extract the URL from the background-image property
+    var imageUrl = backgroundImage.slice(5, -2);
+
+    var link = document.createElement("a");
+    link.href = imageUrl;
+    link.download = "automaton.png";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+
+  document.getElementById('graph_ou_automate').addEventListener('change', function() {
+  var graph = document.getElementById('graph');
+  if (this.checked) {
+    graph.classList.remove('opacity-0');
+    graph.classList.add('opacity-100');
+  } else {
+    graph.classList.remove('opacity-100');
+    graph.classList.add('opacity-0');
+  }
+});
+
+
+
+</script>
