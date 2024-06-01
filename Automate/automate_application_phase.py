@@ -20,14 +20,15 @@ class AutomatonAlphabet(Enum):
 
 
 class GraphGeneratorAutomaton:
-    def __init__(self, num_nodes = 10, edge_prob = 0.5, directed=True, valued=False , type = TypeGraphe.Hamiltonien):
+    def __init__(self, num_nodes = 10, edge_prob = 0.5, directed=False, valued=False , type = TypeGraphe.Hamiltonien):
        
-        self.num_nodes = num_nodes
-        self.edge_prob = edge_prob
+        self.num_nodes = int(num_nodes)
+        self.edge_prob = float(edge_prob)
         self.type= type
         self.directed = directed
         self.valued = valued
-        self.state = 1
+        self.state = AutomatonAlphabet.initialization  
+        self.edges= []
 
 
     def runGenerateGraph(self):
@@ -183,20 +184,25 @@ class GraphGeneratorAutomaton:
 
         #ADD EDGES FOR AN HAMELTONIEN GRAPH 
         if self.type == TypeGraphe.Hamiltonien:
-            hamiltonian_path = list(range(self.num_nodes))
-            random.shuffle(hamiltonian_path)
-            hamiltonian_path.append(hamiltonian_path[0])
+            self.edges = list(range(self.num_nodes))
+            random.shuffle(self.edges)
+            self.edges.append(self.edges[0])
             
             # Add edges to form the Hamiltonian cycle
-            for index in range(self.num_nodes-1):
-                print(index)
-                self.graph.add_edge(hamiltonian_path[index], hamiltonian_path[index+1] , weight = index )
+            for index in range(self.num_nodes):
+                if self.valued:
+                    self.graph.add_edge(self.edges[index], self.edges[index+1] , weight = random.randint(1, 10))
+                else:
+                    self.graph.add_edge(self.edges[index], self.edges[index+1])      
             
             # Optionally add additional edges
             for i in range(self.num_nodes):
                 for j in range(i + 1, self.num_nodes):
                     if random.random() > self.edge_prob and not self.graph.has_edge(i, j)  and not self.graph.has_edge(j,i) :
-                        self.graph.add_edge(i, j , weight= -1)
+                        if self.valued:
+                           self.graph.add_edge(i, j , weight= random.randint(1, 10) )
+                        else:
+                            self.graph.add_edge(i, j, weight= -1)   
 
 
         self.state = AutomatonAlphabet.finalization
@@ -246,7 +252,7 @@ class GraphGeneratorAutomaton:
         else:
             raise Exception("Graph generation is not yet complete.")
     
-    def draw_graph(self, show=True):
+    def __draw_graph(self, show=True):
 
         generated_graph = self.get_graph()
         pos = nx.spring_layout(generated_graph) 
@@ -256,28 +262,40 @@ class GraphGeneratorAutomaton:
             pos = nx.bipartite_layout(self.graph, self.top, align='horizontal')  
             
         nx.draw(generated_graph, pos, with_labels=True, node_size=700, node_color="skyblue", font_size=12, font_weight="bold", arrows=True )
-        renderer = AutomatonRenderer(self.automaton)
-        renderer.render(output_file='automaton', format='png')
 
+        self.automaton = AutomatonRenderer(self.automaton)
+        
         if self.valued or self.type == TypeGraphe.Eulerien  or self.type == TypeGraphe.Hamiltonien:
             if self.type == TypeGraphe.Eulerien: 
                 circuit = list(nx.eulerian_circuit(self.graph))
                 edge_labels = {edge: i for i, edge in enumerate(circuit)}  
                 print("Eulerian Circuit:", circuit)   
             else:
-                edge_labels = {(u, v): d["weight"] for u, v, d in generated_graph.edges(data=True)}
+                if self.valued:
+                    edge_labels = {(u, v): d["weight"] for u, v, d in generated_graph.edges(data=True)}
+                hamiltonian_edges = [(self.edges[i], self.edges[i + 1]) for i in range(len(self.edges)-1)]
+                edge_colors = ["red" if (u, v) in hamiltonian_edges or (v, u) in hamiltonian_edges else "black" for u, v in self.graph.edges()]
+                nx.draw(self.graph, pos, edge_color=edge_colors, with_labels=True)
+                if show:
+                    plt.show() 
+                return self.automaton 
+            
             nx.draw_networkx_edge_labels(generated_graph, pos, edge_labels=edge_labels)
         if show:
             plt.show()
+            
+            
+    def save_automaton(self, path :str , format='png'):
+        self.automaton.render(output_file=path, format=format)
+    def save_graph(self, path):
+        self.__draw_graph(show=False)
+        plt.savefig(path)
 
-        def save_graph(self, path):
-            self.draw_graph(show=False)
-            plt.savefig(path)
 
-
-if __name__ == "__main":
+if __name__ == "__main__":
     # Paramètres de génération
     num_nodes = 5 # Nombre de nœuds dans le graphe
+
     edge_prob = 0.2  # Probabilité d'ajout d'une arête entre deux nœuds
 
     # Créer l'automate de génération de graphe
@@ -286,7 +304,7 @@ if __name__ == "__main":
     # Exécuter l'automate
     automaton.runGenerateGraph()
 
-    automaton.draw_graph()
+    automaton.__draw_graph()
 
 
 

@@ -41,7 +41,7 @@ class AutomatonRenderer:
             dot.node('', shape='point')
             dot.edge('', str(init), label='', style='bold')
 
-        dot.render(output_file, format=format, view=False )
+        dot.render(output_file, format=format, view=False)
 
 
 # Usage example

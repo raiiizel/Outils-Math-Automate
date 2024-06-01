@@ -24,12 +24,21 @@ def display():
         dirige_ou_non = int(request.form["dirige_ou_non"]) #String 0 is equel to true when converted directly to bool
         value_ou_non = int(request.form["value_ou_non"])
         type_graphe = request.form["type_graphe"]
-        #TODO: generate the graphe and automaton and pass the files' urls to the template
-        
-        automaton_image_url="static/automaton.png"
-        graphe_image_url="static/graphe.png"
 
-    return render_template("result.html",automaton_image_url=automaton_image_url,  graphe_image_url=graphe_image_url)
+
+        automaton_image_url="Outils-Math-Automate/static/automaton"
+        graphe_image_url="Outils-Math-Automate/static/graphe.png"
+        #TODO: generate the graphe and automaton and pass the files' urls to the template
+
+
+        automaton = GraphGeneratorAutomaton(nb_neouds, edge_prob=0.5,directed=bool(dirige_ou_non), valued=bool(value_ou_non), type=graph_type_dict[type_graphe])
+        formatAutomaton = ".png"
+        automaton.runGenerateGraph()
+
+        automaton.save_graph(graphe_image_url)
+        automaton.save_automaton(automaton_image_url,formatAutomaton)
+
+    return render_template("result.html",automaton_image_url=automaton_image_url+formatAutomaton,  graphe_image_url=graphe_image_url)
 
 @app.route("/graph_form", methods = ["GET","POST"])
 def graph_form():
