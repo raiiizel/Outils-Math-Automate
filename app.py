@@ -20,23 +20,23 @@ def display():
 
     if request.method == "POST":
         nb_neouds = request.form.get("nb_noeuds")
+        edge_probability = request.form.get("edge_probability")
         print(nb_neouds)
         dirige_ou_non = int(request.form["dirige_ou_non"]) #String 0 is equel to true when converted directly to bool
         value_ou_non = int(request.form["value_ou_non"])
         type_graphe = request.form["type_graphe"]
 
 
-        automaton_image_url="Outils-Math-Automate/static/automaton"
-        graphe_image_url="Outils-Math-Automate/static/graphe.png"
+        automaton_image_url="static/automaton"
+        graphe_image_url="static/graphe.png"
         #TODO: generate the graphe and automaton and pass the files' urls to the template
 
-
-        automaton = GraphGeneratorAutomaton(nb_neouds, edge_prob=0.5,directed=bool(dirige_ou_non), valued=bool(value_ou_non), type=graph_type_dict[type_graphe])
+        automaton = GraphGeneratorAutomaton(nb_neouds, edge_prob=edge_probability,directed=bool(dirige_ou_non), valued=bool(value_ou_non), type=graph_type_dict[type_graphe])
         formatAutomaton = ".png"
         automaton.runGenerateGraph()
 
         automaton.save_graph(graphe_image_url)
-        automaton.save_automaton(automaton_image_url,formatAutomaton)
+        automaton.save_automaton(automaton_image_url)
 
     return render_template("result.html",automaton_image_url=automaton_image_url+formatAutomaton,  graphe_image_url=graphe_image_url)
 
