@@ -2,8 +2,8 @@ from enum import Enum, auto
 import networkx as nx 
 import random
 import matplotlib.pyplot as plt
-from core import automate ,Automate
-from automate_render import AutomatonRenderer
+from .core import automate ,Automate
+from .automate_render import AutomatonRenderer
 from math import floor
 class TypeGraphe(Enum):
     Simple = auto()
@@ -293,7 +293,6 @@ class GraphGeneratorAutomaton:
             
         nx.draw(generated_graph, pos, with_labels=True, node_size=700, node_color="skyblue", font_size=12, font_weight="bold", arrows=True )
         self.automaton = AutomatonRenderer(self.automaton)
-        self.save_automaton()
         
         if self.valued or self.type == TypeGraphe.Eulerien  or self.type == TypeGraphe.Hamiltonien:
             label_pos=0.5
@@ -312,8 +311,7 @@ class GraphGeneratorAutomaton:
                     edge_labels = {(u, v): d["weight"] for u, v, d in generated_graph.edges(data=True)}
                     nx.draw_networkx_edge_labels(generated_graph, pos, edge_labels=edge_labels)
 
-                
-
+            
         if show :
             plt.show()
         
