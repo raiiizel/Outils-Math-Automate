@@ -1,18 +1,22 @@
 digraph {
 	"{1}"
-	"{2}"
-	"{3}"
-	"{4}"
 	"{5}"
+	"{4}"
+	"{3, 5}"
+	"{8}" [shape=doublecircle]
 	"{6}" [shape=doublecircle]
-	"{1}" -> "{2}" [label="  init (numberNodes = 5)"]
-	"{2}" -> "{2}" [label="  add_nodes (graphNodes < 5)"]
-	"{2}" -> "{3}" [label="  graphNodes == 5"]
-	"{3}" -> "{3}" [label="  add_edges ( graph.number_of_edges() < 10)"]
-	"{3}" -> "{4}" [label="    graph.number_of_edges() == 10"]
-	"{4}" -> "{4}" [label=" remove_edges( Node_Degree1 % 2 != 0 && Node_Degree2 % 2 != 0)"]
-	"{4}" -> "{5}" [label=" Nodes_Degree % 2 == 0"]
-	"{5}" -> "{6}" [label="  finalize"]
+	"{7}" [shape=doublecircle]
+	"{1}" -> "{1}" [label=a]
+	"{1}" -> "{5}" [label=b]
+	"{5}" -> "{4}" [label=a]
+	"{4}" -> "{3, 5}" [label=a]
+	"{4}" -> "{8}" [label=b]
+	"{3, 5}" -> "{4}" [label=a]
+	"{3, 5}" -> "{6}" [label=b]
+	"{8}" -> "{7}" [label=a]
+	"{8}" -> "{7}" [label=b]
+	"{7}" -> "{8}" [label=a]
+	"{7}" -> "{7}" [label=b]
 	"" -> "{1}" [style=invis]
 	"" [shape=point]
 	"" -> "{1}" [label="" style=bold]

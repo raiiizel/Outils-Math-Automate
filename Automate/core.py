@@ -127,7 +127,10 @@ class Automate:
                 if not target_states :
                     continue
                 if target_states not in new_states:
-                    target_state_type = TypeEtat.Terminal if any(s in self.etats_terminaux for s in target_states) else TypeEtat.Intermediaire
+                    target_state_type = TypeEtat.Terminal if any(s in etat.label_etat for etat in self.etats_terminaux for s in target_states) else TypeEtat.Intermediaire
+
+
+                                
                     new_state = Etat(label_etat=target_states, type_etat=target_state_type)
                     new_states[target_states] = new_state
                     unprocessed.append(target_states)

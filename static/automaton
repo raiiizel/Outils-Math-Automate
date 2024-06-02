@@ -4,10 +4,10 @@ digraph {
 	"{3}"
 	"{4}"
 	"{5}" [shape=doublecircle]
-	"{1}" -> "{2}" [label="  init (numberNodes = 2)"]
-	"{2}" -> "{2}" [label="  add_nodes (graphNodes < 2)"]
-	"{2}" -> "{3}" [label="  graphNodes == 2"]
-	"{3}" -> "{3}" [label="  add_valued_edges ( graphEdge < 0.5 )"]
+	"{1}" -> "{2}" [label="  init (numberNodes = 7)"]
+	"{2}" -> "{2}" [label="  add_nodes (graphNodes < 7)"]
+	"{2}" -> "{3}" [label="  graphNodes == 7"]
+	"{3}" -> "{3}" [label="  add_edges ( graphEdge < 0.5 )"]
 	"{3}" -> "{4}" [label=" (pas boucle).(pas arret parrallele)"]
 	"{4}" -> "{5}" [label="  finalize"]
 	"" -> "{1}" [style=invis]

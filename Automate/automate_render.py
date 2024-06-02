@@ -1,4 +1,4 @@
-from .core import automate,Automate
+from core import automate,Automate
 from graphviz import Digraph
 
 
@@ -67,14 +67,14 @@ transitions =   [(1, 'a', 1),(1, 'b', 5),
 #                 (2, 'd', 5),(3, 'b', 2),(3, 'b', 4),
 #                 (4, 'b', 4),(4, 'c', 5),(4, 'd', 5),(5, 'e', 6),]
 
-alphabet = ['a', 'b']
-etats = [1, 2, 3, 4]
-etats_initiaux = [1]
-etats_finaux = [2]
-transitions =   [(1, 'a', 1),(1, 'b', 2),(1, 'a', 3),
-                (2, 'b', 1),(2, 'b', 4),
-                (3, 'b', 2),(3, 'a', 4),
-                (4, 'a', 4),(4, 'b', 2),]
+# alphabet = ['a', 'b']
+# etats = [1, 2, 3, 4]
+# etats_initiaux = [1]
+# etats_finaux = [2]
+# transitions =   [(1, 'a', 1),(1, 'b', 2),(1, 'a', 3),
+#                 (2, 'b', 1),(2, 'b', 4),
+#                 (3, 'b', 2),(3, 'a', 4),
+#                 (4, 'a', 4),(4, 'b', 2),]
 
 
 # Création de l'automate
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     # print("Alphabets:", automate_minimise_2.return_alpha())
     # print("États:", automate_minimise_2.return_etat())
     # print("Transitions:", automate_minimise_2.return_transition())
-    renderer = AutomatonRenderer(automate_completer)
+    renderer = AutomatonRenderer(automate_determinise)
     renderer.render(output_file='automaton', format='png')
     # renderer = AutomatonRenderer(automate_minimise_2)
     # renderer.render(output_file='automaton', format='png')
