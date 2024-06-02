@@ -21,7 +21,6 @@ def display():
     if request.method == "POST":
         nb_neouds = request.form.get("nb_noeuds")
         edge_probability = request.form.get("edge_probability")
-        print(nb_neouds)
         dirige_ou_non = int(request.form["dirige_ou_non"]) #String 0 is equel to true when converted directly to bool
         value_ou_non = int(request.form["value_ou_non"])
         type_graphe = request.form["type_graphe"]
