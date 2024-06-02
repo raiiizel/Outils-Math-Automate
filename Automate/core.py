@@ -2,9 +2,7 @@ from enum import Enum, auto
 from collections.abc import Iterable
 
 class TypeEtat(Enum):
-    """
-    bach ndefiniw les types dial les etats blast mankhdmo b'strings (puisqu'ils sont susceptibles au bugs ou fautes de frappe etc....)
-    """
+    """Enumération des différents états d'un élément"""
     Initial = auto()
     Intermediaire = auto()
     Terminal = auto()
@@ -12,55 +10,99 @@ class TypeEtat(Enum):
 
 
 class Etat:
-    def __init__(self, label_etat : list[str | int], type_etat : TypeEtat = TypeEtat.Intermediaire):
-        self.label_etat = frozenset(label_etat)
-        self.type_etat = type_etat
+    def __init__(self, label_etat: list[str | int], type_etat: TypeEtat = TypeEtat.Intermediaire):
+        self._label_etat = frozenset(label_etat)
+        self._type_etat = type_etat
+
+    @property
+    def label_etat(self):
+        return self._label_etat
+
+    @label_etat.setter
+    def label_etat(self, label_etat: list[str | int]):
+        self._label_etat = frozenset(label_etat)
+
+    @property
+    def type_etat(self):
+        return self._type_etat
+
+    @type_etat.setter
+    def type_etat(self, type_etat: TypeEtat):
+        self._type_etat = type_etat
 
 
 class Alphabet:
-    def __init__(self, val_alphabet : str):
-        self.val_alphabet = val_alphabet
+    def __init__(self, val_alphabet: str):
+        self._val_alphabet = val_alphabet
+
+    @property
+    def val_alphabet(self):
+        return self._val_alphabet
+
+    @val_alphabet.setter
+    def val_alphabet(self, val_alphabet: str):
+        self._val_alphabet = val_alphabet
 
 class Transition:
-    def __init__(self, etat_source : Etat, etat_destination : Etat, alphabet : Alphabet):
-        self.etat_source = etat_source
-        self.etat_destination = etat_destination
-        self.alphabet = alphabet
+    def __init__(self, etat_source: Etat, etat_destination: Etat, alphabet: Alphabet):
+        self._etat_source = etat_source
+        self._etat_destination = etat_destination
+        self._alphabet = alphabet
+
+    @property
+    def etat_source(self):
+        return self._etat_source
+
+    @etat_source.setter
+    def etat_source(self, etat_source: Etat):
+        self._etat_source = etat_source
+
+    @property
+    def etat_destination(self):
+        return self._etat_destination
+
+    @etat_destination.setter
+    def etat_destination(self, etat_destination: Etat):
+        self._etat_destination = etat_destination
+
+    @property
+    def alphabet(self):
+        return self._alphabet
+
+    @alphabet.setter
+    def alphabet(self, alphabet: Alphabet):
+        self._alphabet = alphabet
 
 class Automate:
     
-    def __init__(self, list_alphabets : list[Alphabet], list_etats : list[Etat], list_transitions : list[Transition]):
-        """"
-        madrtch list initiaux w terminaux, 7itach kayna type d'etat fl'etat, n9do n'segregiw bih
-        """
-        self.list_alphabets = list_alphabets
-        self.list_etats = list_etats
-        self.list_transitions = list_transitions
-        self.etats_initiaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Initial]
-        self.etats_terminaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Terminal]
-    
+    def __init__(self, list_alphabets: list[Alphabet], list_etats: list[Etat], list_transitions: list[Transition]):
+        self._list_alphabets = list_alphabets
+        self._list_etats = list_etats
+        self._list_transitions = list_transitions
+        self._etats_initiaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Initial]
+        self._etats_terminaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Terminal]
 
-    def return_alpha(self)->list[str]:
-        return  [alpha.val_alphabet for alpha in self.list_alphabets]
-    
-    def return_etat(self)-> list[tuple[set[str | int], str, set[str | int]]]:
+    def set_alphabets(self, list_alphabets: list[Alphabet]):
+        self._list_alphabets = list_alphabets
+    def set_etats(self, list_etats: list[Etat]):
+        self._list_etats = list_etats
+        self._etats_initiaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Initial]
+        self._etats_terminaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Terminal]
+    def set_transitions(self, list_transitions: list[Transition]):
+        self._list_transitions = list_transitions
+    def get_alpha(self)->list[str]:
+        return  [alpha.val_alphabet for alpha in self.list_alphabets]   
+    def get_etat(self)-> list[tuple[set[str | int], str, set[str | int]]]:
         return [set(etat.label_etat)  for etat in self.list_etats]
-    def return_etat_initial(self)-> list[tuple[set[str | int], str, set[str | int]]]:
+    def get_etat_initial(self)-> list[tuple[set[str | int], str, set[str | int]]]:
         return [set(etat.label_etat)  for etat in self.etats_initiaux]
-    def return_etat_terminaux(self)-> list[tuple[set[str | int], str, set[str | int]]]:
-        return [set(etat.label_etat)  for etat in self.etats_terminaux]
-          
-    def return_transition(self)-> list[tuple[set[str | int], str, set[str | int]]]:
+    def get_etat_terminaux(self)-> list[tuple[set[str | int], str, set[str | int]]]:
+        return [set(etat.label_etat)  for etat in self.etats_terminaux]    
+    def get_transition(self)-> list[tuple[set[str | int], str, set[str | int]]]:
         return [(set(trans.etat_source.label_etat), trans.alphabet.val_alphabet, set(trans.etat_destination.label_etat)) for trans in self.list_transitions]
     
     
     def determiniser(self):
-        """
-        Converts the given Automate object into a deterministic Automate object.
-
-        Returns:
-            Automate: A new Automate object that is deterministic.
-        """
         new_states = {}
         unprocessed = []
         new_transitions = []
@@ -96,24 +138,12 @@ class Automate:
         return Automate(self.list_alphabets, new_list_states, new_transitions)
  
     def completer(self, etat_puit: int | set):
-        """
-        Completes the automaton by adding transitions to the sink state.
-
-        Args:
-            etat_puit (int or set): The sink state of the automaton.
-
-        Returns:
-            automate: The completed automaton.
-
-        """
-        # Definition of new lists
         list_transition = []
         list_etat_initial = []
         list_etat_final = []
         list_etat = []
         list_alphabets = []
 
-        # Iterate over each state in the automaton
         for etat in self.list_etats:
             list_etat.append(*self.__gerer_etat_multiple(etat.label_etat))
             if etat.type_etat == TypeEtat.Initial:
@@ -121,7 +151,6 @@ class Automate:
             elif etat.type_etat == TypeEtat.Terminal:
                 list_etat_final.append(*self.__gerer_etat_multiple(etat.label_etat))
 
-        # Iterate over each transition in the automaton
         for trans in self.list_transitions:
             list_alphabets.append(trans.alphabet.val_alphabet) if trans.alphabet.val_alphabet not in list_alphabets else None
             new_trans = (
@@ -131,24 +160,17 @@ class Automate:
             )
             list_transition.append(new_trans) if new_trans not in list_transition else None
 
-        # Add the sink state to the list of states
         list_etat.append(etat_puit)
         non_complet = False
         list_transition_puit = []
 
-        # Iterate over each state in the list of states
         for index, etat in enumerate(list_etat):
-            # Check if there are no target states for a given alphabet and the state is not the sink state
             for alpha in list_alphabets:
                 if not self.__get_target_states(etat, alpha) and etat != etat_puit:
                     non_complet = True
                     list_transition.append([etat, alpha, etat_puit])
-
-            # Define transitions for the sink state
             if index == 0:
                 list_transition_puit.append([etat_puit, alpha, etat_puit])
-
-        # Extend the list of transitions with the transitions for the sink state if the automaton is not complete
         if non_complet:
             list_transition.extend(list_transition_puit)
         else:
@@ -168,7 +190,6 @@ class Automate:
         new_partition = []
         
         while True:
-
             new_partition_without_unique=[]  
             for group in partition: 
                 new_group = []
@@ -176,32 +197,18 @@ class Automate:
                     new_partition.append(group)
                     continue
                 new_group=self.__group_creation(group,partition)
- 
                 new_partition_without_unique += [set(ele) for ele in new_group if len(set(ele)) > 1]
                 new_partition += [set(ele) for ele in new_group if set(ele) not in new_partition_without_unique]
-            
-            new_partition+=self.__conflict_gestion(new_partition_without_unique)
 
+            new_partition+=self.__conflict_gestion(new_partition_without_unique)
             if new_partition == partition:
                 break
-
-
             partition = new_partition
             new_partition = []
-
-
-        # Gather minimized states
         minimized_states = partition
-
-        # Identify initial state(s)
         minimized_initial_states = [state for state in minimized_states if any(s in etat.label_etat for etat in self.etats_initiaux for s in state)]
-
-        # Identify terminal state(s)
         minimized_terminal_states = [state for state in minimized_states if any(s in etat.label_etat for etat in  self.etats_terminaux for s in state)]
-
-        # Update transitions to reflect minimized states
         minimized_transitions = self.__update_transitions(minimized_states)
-
 
         return automate(list_alphabets,minimized_states,minimized_initial_states,minimized_terminal_states,minimized_transitions)
 

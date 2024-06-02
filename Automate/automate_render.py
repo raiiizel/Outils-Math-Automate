@@ -8,16 +8,16 @@ class AutomatonRenderer:
 
     def fixing_format(self):
         # Convert list_etats to sets
-        list_etats = self.automaton.return_etat()
+        list_etats = self.automaton.get_etat()
 
         # Convert etats_initiaux to sets
-        etats_initiaux =    self.automaton.return_etat_initial()
+        etats_initiaux =    self.automaton.get_etat_initial()
 
         # Convert etats_terminaux to sets
-        etats_terminaux = self.automaton.return_etat_terminaux()
+        etats_terminaux = self.automaton.get_etat_terminaux()
 
         # Convert transition states to sets
-        displayed_transition = self.automaton.return_transition()
+        displayed_transition = self.automaton.get_transition()
         return list_etats, etats_initiaux, etats_terminaux, displayed_transition
 
     def render(self, output_file='automaton', format='png' ):
@@ -90,29 +90,29 @@ if __name__ == '__main__':
 
     # Vérification des résultats
     print("Automate original:")
-    print("Alphabets:",exemple_automate.return_alpha())
-    print("États:", exemple_automate.return_etat())
-    print("Transitions:",exemple_automate.return_transition())
+    print("Alphabets:",exemple_automate.get_alpha())
+    print("États:", exemple_automate.get_etat())
+    print("Transitions:",exemple_automate.get_transition())
 
 
     print("\nAutomate déterminisé:")
-    print("Alphabets:",automate_determinise.return_alpha())
-    print("États:", automate_determinise.return_etat())
-    print("Transitions:",automate_determinise.return_transition())
+    print("Alphabets:",automate_determinise.get_alpha())
+    print("États:", automate_determinise.get_etat())
+    print("Transitions:",automate_determinise.get_transition())
 
     print("\nAutomate completer:")
-    print("Alphabets:",automate_completer.return_alpha())
-    print("États:", automate_completer.return_etat())
-    print("Transitions:",automate_completer.return_transition())
+    print("Alphabets:",automate_completer.get_alpha())
+    print("États:", automate_completer.get_etat())
+    print("Transitions:",automate_completer.get_transition())
 
     # # Appliquer la fonction minimiser
     automate_minimise_2 = exemple_automate.minimiser()
 
     # # Vérification des résultats
     # print("\nAutomate minimisé:")
-    # print("Alphabets:", automate_minimise_2.return_alpha())
-    # print("États:", automate_minimise_2.return_etat())
-    # print("Transitions:", automate_minimise_2.return_transition())
+    # print("Alphabets:", automate_minimise_2.get_alpha())
+    # print("États:", automate_minimise_2.get_etat())
+    # print("Transitions:", automate_minimise_2.get_transition())
     renderer = AutomatonRenderer(exemple_automate)
     renderer.render(output_file='automaton', format='png')
     renderer = AutomatonRenderer(automate_minimise_2)
