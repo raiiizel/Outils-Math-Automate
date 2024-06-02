@@ -3,6 +3,8 @@ from flask import render_template
 from Automate.automate_application_phase import *
 from Automate.automate_render import *
 app = Flask(__name__)
+#disabling cache, to avoid caching the graph results
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 @app.route("/", methods = ["GET","POST"])
 def index():
