@@ -76,20 +76,20 @@ class Transition:
 class Automate:
     
     def __init__(self, list_alphabets: list[Alphabet], list_etats: list[Etat], list_transitions: list[Transition]):
-        self._list_alphabets = list_alphabets
-        self._list_etats = list_etats
-        self._list_transitions = list_transitions
-        self._etats_initiaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Initial]
-        self._etats_terminaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Terminal]
+        self.list_alphabets = list_alphabets
+        self.list_etats = list_etats
+        self.list_transitions = list_transitions
+        self.etats_initiaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Initial]
+        self.etats_terminaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Terminal]
 
     def set_alphabets(self, list_alphabets: list[Alphabet]):
-        self._list_alphabets = list_alphabets
+        self.list_alphabets = list_alphabets
     def set_etats(self, list_etats: list[Etat]):
-        self._list_etats = list_etats
-        self._etats_initiaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Initial]
-        self._etats_terminaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Terminal]
+        self.list_etats = list_etats
+        self.etats_initiaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Initial]
+        self.etats_terminaux = [etat for etat in list_etats if etat.type_etat == TypeEtat.Terminal]
     def set_transitions(self, list_transitions: list[Transition]):
-        self._list_transitions = list_transitions
+        self.list_transitions = list_transitions
     def get_alpha(self)->list[str]:
         return  [alpha.val_alphabet for alpha in self.list_alphabets]   
     def get_etat(self)-> list[tuple[set[str | int], str, set[str | int]]]:
