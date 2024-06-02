@@ -2,6 +2,8 @@ from enum import Enum, auto
 import networkx as nx 
 import random
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 from .core import automate ,Automate
 from .automate_render import AutomatonRenderer
 from math import floor
