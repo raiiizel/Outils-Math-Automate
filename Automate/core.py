@@ -164,22 +164,26 @@ class Automate:
         non_complet = False
         list_transition_puit = []
 
-        for index, etat in enumerate(list_etat):
+        # Iterate over each state in the list of states
+        for etat in list_etat:
+            # Check if there are no target states for a given alphabet and the state is not the sink state
             for alpha in list_alphabets:
                 if not self.__get_target_states(etat, alpha) and etat != etat_puit:
                     non_complet = True
                     list_transition.append([etat, alpha, etat_puit])
-            if index == 0:
-                list_transition_puit.append([etat_puit, alpha, etat_puit])
+
+        for alpha in list_alphabets :
+            # Define transitions for the sink state
+            list_transition_puit.append([etat_puit, alpha, etat_puit])
+
+        # Extend the list of transitions with the transitions for the sink state if the automaton is not complete
         if non_complet:
             list_transition.extend(list_transition_puit)
         else:
             list_etat.pop(list_etat.index(etat_puit))
 
         return automate(list_alphabets, list_etat, list_etat_initial, list_etat_final, list_transition)
-    
- 
-      
+       
     def minimiser(self):
 
         # init des premiers partition
@@ -289,8 +293,7 @@ class Automate:
             if conflicts_group not in conflicts_etat:
                 conflicts_etat.append(conflicts_group)
         return  conflicts_etat   
-    def render(self):
-        ...
+
 
 
 """

@@ -20,7 +20,7 @@ class AutomatonAlphabet(Enum):
 
 
 class GraphGeneratorAutomaton:
-    def __init__(self, num_nodes = 10, edge_prob = 0.5, directed=False, valued=False , type = TypeGraphe.Hamiltonien):
+    def __init__(self, num_nodes = 10, edge_prob = 0.5, directed=True, valued=True , type = TypeGraphe.Hamiltonien):
        
         self.num_nodes = int(num_nodes)
         self.edge_prob = float(edge_prob)
@@ -56,6 +56,7 @@ class GraphGeneratorAutomaton:
 
         removeEdges=''
         endCondition2=''
+        hameltonien=''
         if self.type == TypeGraphe.Simple or self.type == TypeGraphe.Hamiltonien:
             initNode=f'  init (numberNodes = {self.num_nodes})'
             if self.valued:
@@ -87,7 +88,22 @@ class GraphGeneratorAutomaton:
             else:
                 removeEdges= f' remove_edges ( Node_in_Degree != Node_out_degree )'
                 endCondition2= f' Nodes_in_Degree == Nodes_out_degree '
-            
+        if self.type == TypeGraphe.Hamiltonien:
+            initNode=f'  init (numberNodes = {self.num_nodes} , i = 0)'
+            if self.valued:
+                addEdges=f' add_valued_edges ( node (i) , value , node(i+1) ) i++ '
+            else :
+                addEdges=f'  add_edges  ( node (i) , node(i+1) ) i in [0 , {self.num_nodes-1}]  ' 
+
+            endCondition=f'     i == {self.num_nodes-1}'
+            if self.valued:
+                removeEdges=f'    add_valued_edges (node(i), value , node(0))'
+                hameltonien=f'    add_valued_edges ( node(i) , value ,node(j) ) as needed '
+            else :
+                removeEdges=f'    addEdge (node(i), node(0))'
+                hameltonien=f'    addEdges ( node(i) , node(j) ) as needed  '
+            endCondition2= f'   1'
+
         self.automaton = self.__generateAutomaton(
             initNode=initNode,
             addNodes= f'  add_nodes (graphNodes < {self.num_nodes})',
@@ -96,7 +112,8 @@ class GraphGeneratorAutomaton:
             endCondition=endCondition,
             finalize='  finalize',
             removeEdges=removeEdges,
-            endCondition2=endCondition2
+            endCondition2=endCondition2,
+            hameltonien=hameltonien,
             )
 
 
@@ -206,34 +223,47 @@ class GraphGeneratorAutomaton:
 
 
         self.state = AutomatonAlphabet.finalization
+    
     def __finalize(self):
         # Step 4: Finalize the graph generation
         self.state = AutomatonAlphabet.finalization
         print("Graph generation is complete.")
 
-    def __generateAutomaton(self, endCondition :str, 
+    def __generateAutomaton(self, endCondition :str ,
                             initNode :str ,
-                            addNodes :str, 
-                            graphNodes :str, 
+                            addNodes :str ,
+                            graphNodes :str,
                             addEdges :str,
                             removeEdges :str,
-                            endCondition2:str, 
-                            finalize  :str) -> Automate:
-        self.alphabet = [initNode, addNodes, graphNodes, addEdges, endCondition,removeEdges,endCondition2, finalize]
+                            endCondition2:str ,
+                            finalize  :str,
+                            hameltonien :str) -> Automate:
+        self.alphabet = [initNode ,addNodes, graphNodes, addEdges, endCondition,removeEdges,endCondition2, finalize ,hameltonien]
         self.etats = [1, 2, 3, 4, 5]
         self.etats_initiaux = [1]
-        if self.type == TypeGraphe.Eulerien:
+        if self.type == TypeGraphe.Eulerien or self.type == TypeGraphe.Hamiltonien:
             self.etats_finaux = [6]
-            self.transitions = [
-                (1, initNode, 2),
-                (2, addNodes, 2),
-                (2, graphNodes, 3),
-                (3, addEdges, 3),
-                (3, endCondition, 4),
-                (4, removeEdges, 4),
-                (4, endCondition2, 5),
-                (5, finalize, 6)
-            ]
+            if self.type == TypeGraphe.Eulerien:
+                self.transitions = [
+                    (1, initNode, 2),
+                    (2, addNodes, 2),
+                    (2, graphNodes, 3),
+                    (3, addEdges, 3),
+                    (3, endCondition, 4),
+                    (4, removeEdges, 4),
+                    (4, endCondition2, 5),
+                    (5, finalize, 6) ]
+            else :
+                self.transitions = [
+                    (1, initNode, 2),
+                    (2, addNodes, 2),
+                    (2, graphNodes, 3),
+                    (3, addEdges, 3),
+                    (3, endCondition, 4),
+                    (4, removeEdges, 4),
+                    (4, endCondition2, 5),
+                    (5, hameltonien , 5) ,
+                    (5, finalize, 6)        ]
         else:
             self.etats_finaux = [5]
             self.transitions = [
@@ -252,7 +282,7 @@ class GraphGeneratorAutomaton:
         else:
             raise Exception("Graph generation is not yet complete.")
     
-    def __draw_graph(self, show=True):
+    def draw_graph(self, show=True):
 
         generated_graph = self.get_graph()
         pos = nx.spring_layout(generated_graph) 
@@ -262,33 +292,34 @@ class GraphGeneratorAutomaton:
             pos = nx.bipartite_layout(self.graph, self.top, align='horizontal')  
             
         nx.draw(generated_graph, pos, with_labels=True, node_size=700, node_color="skyblue", font_size=12, font_weight="bold", arrows=True )
-
         self.automaton = AutomatonRenderer(self.automaton)
         
         if self.valued or self.type == TypeGraphe.Eulerien  or self.type == TypeGraphe.Hamiltonien:
+            label_pos=0.5
+            if self.directed:
+                label_pos=0.8
             if self.type == TypeGraphe.Eulerien: 
                 circuit = list(nx.eulerian_circuit(self.graph))
-                edge_labels = {edge: i for i, edge in enumerate(circuit)}  
-                print("Eulerian Circuit:", circuit)   
-            else:
-                if self.valued:
-                    edge_labels = {(u, v): d["weight"] for u, v, d in generated_graph.edges(data=True)}
+                edge_labels = {edge: str(i)  for i, edge in enumerate(circuit)}     
+                nx.draw_networkx_edge_labels(generated_graph, pos, edge_labels=edge_labels, label_pos=label_pos)
+            elif self.type == TypeGraphe.Hamiltonien:
                 hamiltonian_edges = [(self.edges[i], self.edges[i + 1]) for i in range(len(self.edges)-1)]
-                edge_colors = ["red" if (u, v) in hamiltonian_edges or (v, u) in hamiltonian_edges else "black" for u, v in self.graph.edges()]
-                nx.draw(self.graph, pos, edge_color=edge_colors, with_labels=True)
-                if show:
-                    plt.show() 
-                return self.automaton 
+                edge_colors = ["red" if (u, v) in hamiltonian_edges or (v, u) in hamiltonian_edges else "black" for u , v in self.graph.edges()]
+                nx.draw(self.graph, pos, edge_color=edge_colors, with_labels=True ,  arrows=True)
+            if self.valued:
+                if self.type != TypeGraphe.Eulerien :
+                    edge_labels = {(u, v): d["weight"] for u, v, d in generated_graph.edges(data=True)}
+                    nx.draw_networkx_edge_labels(generated_graph, pos, edge_labels=edge_labels)
+
             
-            nx.draw_networkx_edge_labels(generated_graph, pos, edge_labels=edge_labels)
-        if show:
+        if show :
             plt.show()
+        
             
-            
-    def save_automaton(self, path :str , format='png'):
+    def save_automaton(self, path:str='automaton'  , format:str='png'):
         self.automaton.render(output_file=path, format=format)
     def save_graph(self, path):
-        self.__draw_graph(show=False)
+        self.draw_graph(show=False)
         plt.savefig(path)
 
 
@@ -304,7 +335,7 @@ if __name__ == "__main__":
     # Exécuter l'automate
     automaton.runGenerateGraph()
 
-    automaton.__draw_graph()
+    automaton.draw_graph()
 
 
 
