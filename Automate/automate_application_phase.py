@@ -321,6 +321,7 @@ class GraphGeneratorAutomaton:
     def save_graph(self, path):
         self.draw_graph(show=False)
         plt.savefig(path)
+        plt.close()
 
 
 if __name__ == "__main__":
