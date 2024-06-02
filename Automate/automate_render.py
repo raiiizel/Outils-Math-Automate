@@ -1,4 +1,4 @@
-from .core import automate,Automate
+from core import automate,Automate
 from graphviz import Digraph
 
 
@@ -41,7 +41,7 @@ class AutomatonRenderer:
             dot.node('', shape='point')
             dot.edge('', str(init), label='', style='bold')
 
-        dot.render(output_file, format=format, view=False)
+        dot.render(output_file, format=format, view=True)
 
 
 # Usage example
