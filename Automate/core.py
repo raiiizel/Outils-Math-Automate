@@ -164,19 +164,15 @@ class Automate:
         non_complet = False
         list_transition_puit = []
 
-        # Iterate over each state in the list of states
         for etat in list_etat:
-            # Check if there are no target states for a given alphabet and the state is not the sink state
             for alpha in list_alphabets:
                 if not self.__get_target_states(etat, alpha) and etat != etat_puit:
                     non_complet = True
                     list_transition.append([etat, alpha, etat_puit])
 
         for alpha in list_alphabets :
-            # Define transitions for the sink state
             list_transition_puit.append([etat_puit, alpha, etat_puit])
 
-        # Extend the list of transitions with the transitions for the sink state if the automaton is not complete
         if non_complet:
             list_transition.extend(list_transition_puit)
         else:
@@ -185,7 +181,6 @@ class Automate:
         return automate(list_alphabets, list_etat, list_etat_initial, list_etat_final, list_transition)
        
     def minimiser(self):
-
         # init des premiers partition
         etat_terminaux=set([ele for etat_teminal in self.etats_terminaux for ele in etat_teminal.label_etat])
         etats_init=set([ele for etat_int in self.list_etats for ele in etat_int.label_etat if ele not in etat_terminaux])
@@ -309,7 +304,7 @@ def conversion_iterable(etat:Iterable | int) ->tuple[frozenset]:
     return tuple(frozenset(returned_value))
 
 def automate(alphabet : list[str], etats : list[str | int], etats_initiaux : list[str | int], etats_finaux : list[str | int], transitions : list[tuple[int, str | int, int]]) -> Automate:
-    #coversion_en_frozen_set
+    
     etats_initiaux = [conversion_iterable(label) for label in etats_initiaux]
     etats_finaux = [conversion_iterable(label) for label in etats_finaux]
     etats = [conversion_iterable(label) for label in etats]

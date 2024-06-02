@@ -120,12 +120,10 @@ class GraphGeneratorAutomaton:
 
 
     def __initialize_graph(self):
-        # Step 1: Initialize the graph
         self.graph =  nx.DiGraph() if self.directed else nx.Graph()
         self.state = AutomatonAlphabet.add_nodes  
 
     def __add_nodes(self):
-        # Step 2: Add nodes
         if self.type == TypeGraphe.Simple or self.type == TypeGraphe.Complet or self.type == TypeGraphe.Eulerien : 
             self.graph.add_nodes_from(range(self.num_nodes))
             
@@ -227,7 +225,7 @@ class GraphGeneratorAutomaton:
         self.state = AutomatonAlphabet.finalization
     
     def __finalize(self):
-        # Step 4: Finalize the graph generation
+        # Step 4: Finaliser le generation du graphe
         self.state = AutomatonAlphabet.finalization
         print("Graph generation is complete.")
 
@@ -327,7 +325,6 @@ class GraphGeneratorAutomaton:
 
 
 if __name__ == "__main__":
-    # Paramètres de génération
     num_nodes = 5 # Nombre de nœuds dans le graphe
 
     edge_prob = 0.2  # Probabilité d'ajout d'une arête entre deux nœuds
